@@ -13,56 +13,51 @@
     var DEBUG = true;
 
     // ENTITY SIGNALS
-    // Grab the current color, set the button type, get the zone ID, and send a buttonPreloadComplete signal to the zone
-    var INITIAL_WHITEBOARD_BUTTON_COLOR = {r: 15, g: 50, b: 25};
-    var INITIAL_SCREENSHARE_BUTTON_COLOR = {r: 60, g: 44, b: 150};
     function preload(entityID) {
         if (DEBUG) {
             console.log("boardButtonClient.js: " + entityID + ": `preload()`.");
         }
         _this.entityID = entityID;
-        var props = Entities.getEntityProperties(entityID, ["name", "color", "parentID"]);
-        console.log("Props.parentID", props.parentID);
-        _this.entityName = props.name;
-        _this.inactiveButtonColor = props.color;
+        var props = Entities.getEntityProperties(entityID, ["parentID"]);
 
-        if (_this.entityName === "Smartboard Whiteboard Button") {
-            _this.buttonType = "whiteboard";
-            _this.inactiveButtonColor = INITIAL_WHITEBOARD_BUTTON_COLOR;
-        } else if (_this.entityName === "Smartboard Screenshare Button") {
-            _this.buttonType = "screenshare";
-            _this.inactiveButtonColor = INITIAL_SCREENSHARE_BUTTON_COLOR;
-        } else {
-            _this.buttonType = "selection";
+        var children = Entities.getChildrenIDs(props.parentID);
+        
+        for (var i = 0; i < children.length; i++) {
+            var name = Entities.getEntityProperties(children[i], 'name').name;
+            if (name === "Smartboard Zone") {
+                _this.screenshareZoneID = children[i];
+                break;
+            }
+        }
+        
+        Entities.callEntityMethod(_this.screenshareZoneID, "buttonPreloadComplete");
+    }
+
+
+    var ACTIVE_SCREENSHARE_MODEL_URL = Script.resolvePath("../resources/models/button-stop-screen-share.fbx");
+    var INACTIVE_SCREENSHARE_MODEL_URL = Script.resolvePath("../resources/models/button-start-screen-share.fbx");
+    function updateModelURL() {
+        var newModelURL = _this.activePresenterUUID === "" ? INACTIVE_SCREENSHARE_MODEL_URL : ACTIVE_SCREENSHARE_MODEL_URL;
+
+        if (DEBUG) {
+            console.log("boardButtonClient.js: " + _this.entityID + "`updateModelURL()`." +
+                "\n`newModelURL`: " + newModelURL + "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
         }
 
-        Entities.getChildrenIDs(props.parentID).forEach(function(smartboardChild) {
-            var name = Entities.getEntityProperties(smartboardChild, 'name').name;
-            if (name === "Smartboard Zone") {
-                _this.screenshareZone = smartboardChild;
-            }
-
-        });
-        Entities.callEntityMethod(_this.screenshareZone, "buttonPreloadComplete");
+        Entities.editEntity(_this.entityID, {modelURL: newModelURL});
     }
 
 
     // UI
-    // update the button's look, called from the zone client
-    var ACTIVE_BUTTON_COLOR = { r: 255, g: 155, b: 255 };
-    function updateButtonState(id, args) {
-        var buttonIsInOnState = args[0];
+    function setActivePresenterUUID(id, args) {
         _this.activePresenterUUID = args[1];
 
-        var newColor = buttonIsInOnState === "true" ? ACTIVE_BUTTON_COLOR : _this.inactiveButtonColor;
-
         if (DEBUG) {
-            console.log("boardButtonClient.js: " + _this.entityID + " (" + _this.buttonType + "): `updateButtonState()`." +
-                "\n`buttonIsInOnState`: " + buttonIsInOnState + "\n`newColor`: " + JSON.stringify(newColor) + 
+            console.log("boardButtonClient.js: " + _this.entityID + "`setActivePresenterUUID()`." +
                 "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
         }
 
-        Entities.editEntity(_this.entityID, {color: newColor});
+        updateModelURL();
     }
 
 
@@ -77,8 +72,9 @@
             console.log ("returning");
             return;
         }
-        console.log("calling update board")
-        Entities.callEntityServerMethod(_this.screenshareZone, "updateCurrentBoardState", [_this.buttonType, MyAvatar.sessionUUID]);
+        console.log("calling update board");
+        Entities.callEntityServerMethod(_this.screenshareZoneID,
+            "updateCurrentBoardState", ["screenshare", MyAvatar.sessionUUID]);
     }
 
 
@@ -87,20 +83,18 @@
     function SmartboardButtonClient() {
         _this = this;
         this.activePresenterUUID = "";
-        this.screenshareZone;
+        this.screenshareZoneID;
         this.entityID;
-        this.buttonType;
-        this.inactiveButtonColor;
-        this.entityName;
         this.remotelyCallable = [
-            "updateButtonState"
+            "setActivePresenterUUID"
         ];
     }
 
     SmartboardButtonClient.prototype = {
         preload: preload,
         mousePressOnEntity: mousePressOnEntity,
-        updateButtonState: updateButtonState
+        updateModelURL: updateModelURL,
+        setActivePresenterUUID: setActivePresenterUUID
     };
 
     return new SmartboardButtonClient();

@@ -27,50 +27,82 @@
 
         if (DEBUG) {
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `receiveBoardState()`." +
-                "\n`_this.currentBoardState`: " + _this.currentBoardState + "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
+                "\n`_this.currentBoardState`: " + _this.currentBoardState +
+                "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
+        }        
+
+        if (_this.currentBoardState === "whiteboard") {
+            createRandomPaintSphere();
+            maybeRemoveLocalWebEntity();
+            maybeRemoveLocalPresenterDisplayName();
+
+            if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
+                Screenshare.stopScreenshare();
+            }
+        } else if (_this.currentBoardState === "screenshare") {
+            Screenshare.viewScreenshare();
+            maybeCreateLocalPresenterDisplayName();
+
+            if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
+                Screenshare.startScreenshare(_this.roomName);
+            } else {
+                maybeRemoveLocalScreenshareButton();
+            }
+            maybeRemovePaintSpheres();
+        } else {
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": `receiveBoardState()`." + " Unhandled state.");
         }
 
-        setupWhiteboardState();
-        setupScreenshareState();
+        setVisibilityOfSmartboardWhiteboardComponents();
+
+        setupLocalButton();
     }
 
 
-    var HIDE_WHITEBOARD_IN_SCREENSHARE_MODE = false;
-    function toggleSmartboardPolylines() {
-        var smartboardPieces = Entities.getChildrenIDs(_this.smartboard);
-        var hideArray = ["screenshare", "reset", "palette"]
-        smartboardPieces.forEach(function(smartboardPiece) {
-            var name = Entities.getEntityProperties(smartboardPiece, 'name').name.toLowerCase();
-            if (name.indexOf("polyline") > -1) {
-                if (_this.currentBoardState === "screenshare" || _this.current) {
-                    for (var i = 0; i < hideArray.length; i++) {
-                        if (name.indexOf(hideArray[i] > -1)) {
-                            Entities.editEntity(smartboardPiece, {visible: false});
-                            break;
-                        }
-                    }
+    // The following Smartboard Whiteboard components should be visible/invisible:
+    // 1. Whiteboard palette circle background
+    // 2. Whiteboard palette circles
+    // 3. Whiteboard "reset" button
+    // 4. Whiteboard polylines
+    var HIDE_POLYLINES_IN_SCREENSHARE_MODE = false;
+    function setVisibilityOfSmartboardWhiteboardComponents() {
+        console.log("State is screenshare");
+
+        var smartboardChildrenIDs = Entities.getChildrenIDs(_this.smartboard);
+        var entityNamesToShowOrHide = ["reset", "palette"];
+        if (HIDE_POLYLINES_IN_SCREENSHARE_MODE) {
+            entityNamesToShowOrHide.push("polyline");
+        }
+        smartboardChildrenIDs.forEach(function(smartboardPiece) {
+            var lowerCaseName = Entities.getEntityProperties(smartboardPiece, 'name').name.toLowerCase();
+            var foundWhiteBoardComponent = false;
+            for (var i = 0; i < entityNamesToShowOrHide.length; i++) {
+                if (lowerCaseName.indexOf(entityNamesToShowOrHide[i] === -1)) {
+                    continue;
                 } else {
-                    Entities.editEntity(smartboardPiece, {visible: true});
+                    foundWhiteBoardComponent = true;
+                    break;
                 }
+            }
+            if (foundWhiteBoardComponent) {
+                Entities.editEntity(smartboardPiece, {visible: _this.currentBoardState === "whiteboard"});
             }
         });
     }
 
     // Updates the state of the local entity buttons.
     // Send the `activePresenterUUID` (even if it's empty) - that helps the buttons know who can change the Smartboard's state.
-    function updateButtonState() {
+    function setButtonActivePresenterUUID() {
         if (!buttonIsReady) {
             return;
         }
 
         if (DEBUG) {
-            console.log("smartboardZoneClient.js: " + _this.entityID + ": `updateButtonState()`.");
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": `setButtonActivePresenterUUID()`.");
         }
 
-        Entities.callEntityMethod(_this.whiteboardButtonID, "updateButtonState",
-            [_this.currentBoardState === "whiteboard", _this.activePresenterUUID]);
-        Entities.callEntityMethod(_this.screenshareButtonID, "updateButtonState",
-            [_this.currentBoardState !== "whiteboard", _this.activePresenterUUID]);
+        Entities.callEntityMethod(_this.ScreenshareStartStopButtonID, "setActivePresenterUUID",
+            [_this.activePresenterUUID]);
     }
 
 
@@ -83,7 +115,7 @@
         }
 
         buttonIsReady = true;
-        updateButtonState();
+        setButtonActivePresenterUUID();
     }
 
 
@@ -93,57 +125,36 @@
     var offset;
     var margin = 0.025;
     var HALF = 2;
-    var THIRD = 3;
     var STATIC_BUTTON_PROPS = {
-        type: "Sphere",
-        dimensions: {x: 0.25, y: 0.25, z: 0.03},
+        type: "Model",
         script: Script.resolvePath("./boardButtonClient.js?" + Date.now()),
-        localPosition: {x: 0, y: 0, z: -1}
+        // TODO: these will change with Alan's redesign
+        // localPosition: {x: 1.1618, y: 1.0004, z: 0.0601},
+        // dimensions: {x: 0.8093, Y: 0.1012, z: 0.0189}
     };
-    var INITIAL_BUTTON_COLOR = {r: 0, g: 0, b: 0};
-    function createLocalButtons() {
+    function setupLocalButton() {
         if (DEBUG) {
-            console.log("smartboardZoneClient.js: " + _this.entityID + ": `createLocalButtons()`.");
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": `setupLocalButton()`.");
         }
-
-        var whiteboardButtonX = -(boardDimensions.x / HALF) + (STATIC_BUTTON_PROPS.dimensions.x / HALF) + margin;
-        var whiteboardButtonY = -(boardDimensions.y / HALF) + (STATIC_BUTTON_PROPS.dimensions.y / HALF) + margin;
-
-        var buttonProps = STATIC_BUTTON_PROPS;
-        buttonProps.parentID = _this.smartboard;
-        buttonProps.localPosition = {x: whiteboardButtonX, y: whiteboardButtonY, z: offset};
-        buttonProps.name = "Smartboard Whiteboard Button";
-        buttonProps.color = INITIAL_BUTTON_COLOR;
-        _this.whiteboardButtonID = Entities.addEntity(buttonProps, 'local');
-        if (DEBUG) {
-            console.log("smartboardZoneClient.js: " + _this.entityID + ": `buttonProps:`.", JSON.stringify(buttonProps, null, 4));
-            console.log("_this.smartboard;", _this.smartboard);
-        }
-        if (!_this.whiteboardOnlyZone) {
-            // Just for testing
-            var screenshareButtonY = buttonProps.localPosition.y + buttonProps.dimensions.y + buttonProps.dimensions.y / THIRD;
-            buttonProps.localPosition.y = screenshareButtonY;
-            buttonProps.name = "Smartboard Screenshare Button";
-            buttonProps.color = INITIAL_BUTTON_COLOR;
-            _this.screenshareButtonID = Entities.addEntity(buttonProps, 'local');
+        
+        if (!_this.whiteBoardOnlyZone) {
+            var buttonProps = STATIC_BUTTON_PROPS;
+            buttonProps.parentID = _this.smartboard;
+            buttonProps.name = "Smartboard ScreenshareStartStop Button";
+            _this.ScreenshareStartStopButtonID = Entities.addEntity(buttonProps, 'local');
         }
     }
 
 
     // remove the local buttons when someone leaves the zone
-    function maybeRemoveLocalButtons() {
+    function maybeRemoveLocalScreenshareButton() {
         if (DEBUG) {
-            console.log("smartboardZoneClient.js: " + _this.entityID + ": `maybeRemoveLocalButtons()`.");
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": `maybeRemoveLocalScreenshareButton()`.");
         }
 
-        if (_this.whiteboardButtonID) {
-            Entities.deleteEntity(_this.whiteboardButtonID);
-            _this.whiteboardButtonID = false;
-        }
-
-        if (_this.screenshareButtonID) {
-            Entities.deleteEntity(_this.screenshareButtonID);
-            _this.screenshareButtonID = false;
+        if (_this.ScreenshareStartStopButtonID) {
+            Entities.deleteEntity(_this.ScreenshareStartStopButtonID);
+            _this.ScreenshareStartStopButtonID = null;
         }
     }
 
@@ -152,7 +163,7 @@
         type: "Text"
     };
 
-    function createLocalPresenterDisplayName() {
+    function maybeCreateLocalPresenterDisplayName() {
         if (_this.localPresenterDisplayName) {
             return;
         }
@@ -167,7 +178,7 @@
     }
 
 
-    function maybeRemoveLocalPresenterDisplayName(){
+    function maybeRemoveLocalPresenterDisplayName() {
         if (_this.localPresenterDisplayName) {
             Entities.deleteEntity(_this.localPresenterDisplayName);            
         }
@@ -182,13 +193,15 @@
         maxFPS: 30
     };
     var boardPosition;
+    var localWebEntitySignalsConnected = false;
     function maybeCreateLocalWebEntity() {
         if (_this.localWebEntityID) {
             return;
         }
 
         if (DEBUG) {
-            console.log("smartboardZoneClient.js: " + _this.entityID + ": `maybeCreateLocalWebEntity()`: Creating local web entity...");
+            console.log("smartboardZoneClient.js: " + _this.entityID +
+                ": `maybeCreateLocalWebEntity()`: Creating local web entity...");
         }
 
         var localWebEntityProps = STATIC_LOCAL_WEB_ENTITY_PROPS;
@@ -200,6 +213,11 @@
         localWebEntityProps.position = boardPosition;
 
         _this.localWebEntityID = Entities.addEntity(localWebEntityProps, 'local');
+        _this.localWebEntityObject = Entities.getEntityObject(_this.localWebEntityObject);
+        if (!localWebEntitySignalsConnected) {
+            _this.localWebEntityObject.webEventReceived.connect(onLocalWebEntityEventReceived);
+            localWebEntitySignalsConnected = true;
+        }
     }
 
 
@@ -207,78 +225,42 @@
     function maybeRemoveLocalWebEntity() {
         if (_this.localWebEntityID) {
             if (DEBUG) {
-                console.log("smartboardZoneClient.js: " + _this.entityID + ": `maybeRemoveLocalWebEntity()`: Deleting local web entity...");
+                console.log("smartboardZoneClient.js: " + _this.entityID +
+                    ": `maybeRemoveLocalWebEntity()`: Deleting local web entity...");
             }
 
             Entities.deleteEntity(_this.localWebEntityID);
         }
         _this.localWebEntityID = false;
+
+        if (localWebEntitySignalsConnected) {
+            _this.localWebEntityObject.webEventReceived.disconnect(onLocalWebEntityEventReceived);
+        }
+        localWebEntitySignalsConnected = false;
+
+        _this.localWebEntityObject = null;
     }
 
 
-    function toggleWhiteboardUI() {
-        if (_this.currentBoardState === "whiteboard") {
-            // Show erase button
-            // Show palettes
-            // Show closeout button
-            // Show screenshare Icon
-        } else {
-            // Hide erase button
-            // Hide palettes
-            // Hide closeout button
-            // Hide screenshare Icon
-        }
-        
-    }
-
-
-    function setupWhiteboardState() {
-        if (_this.currentBoardState === "whiteboard") {
-            createRandomPaintSphere();
-        } else {
-            removePaintSpheres();
-        }
-        toggleWhiteboardUI();
-        if (HIDE_WHITEBOARD_IN_SCREENSHARE_MODE) {
-            toggleSmartboardPolylines();
+    // Where should the call to the metaverse go now?
+    function onLocalWebEntityEventReceived(message){
+        try {
+            message = JSON.parse(message);
+        } catch (e) {
+            console.log("smartBoardZoneClient.js: Error parsing web entity event message: " + e);
             return;
         }
-    }
 
-
-    function toggleScreenshareUI(){
-        if (_this.currentBoardState === "screenshare") {
-            // Add the background
-            // Add the displayName
-            createLocalPresenterDisplayName();
-            // Add the closeout button
-            // Add the screenshare Icon            
-        } else {
-            // remove the background
-            // remove the displayName
-            maybeRemoveLocalPresenterDisplayName();
-            // remove the closeout button
-            // add the screenshare Icon
+        if (message.type === "eventbridge_ready") {
+            _this.localWebEntityObject.emitScriptEvent(JSON.stringify({
+                type: "receiveConnectionInfo",
+                data: {
+                    projectAPIKey: _this.projectAPIKey,
+                    token: _this.token,
+                    sessionID: _this.sessionID
+                }
+            }));
         }
-    }
-
-
-    function setupScreenshareState() {
-        console.log("in setupScreenshare state");
-        if (_this.currentBoardState === "screenshare") {
-            console.log("State is screenshare");
-            maybeCreateLocalWebEntity();
-            if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
-                console.log("Screenshare starting");
-                Screenshare.startScreenshare(_this.roomName);
-            }
-        } else {
-            maybeRemoveLocalWebEntity();
-            if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
-                Screenshare.stopScreenshare();
-            }
-        }
-        toggleScreenshareUI();
     }
 
 
@@ -288,6 +270,14 @@
         }
         
         Entities.callEntityServerMethod(_this.entityID, "updateCurrentBoardState", ["whiteboard", ""]);
+    }
+
+
+    function onStartScreenshareViewer(projectAPIKey, token, sessionID) {
+        _this.projectAPIKey = projectAPIKey;
+        _this.token = token;
+        _this.sessionID = sessionID;
+        maybeCreateLocalWebEntity();
     }
 
 
@@ -308,11 +298,11 @@
         boardPosition = boardProps.position;
         offset = boardDimensions.z / HALF + margin;
 
-        _this.smartboardPieces = Entities.getChildrenIDs(_this.smartboard);
+        _this.smartboardChildrenIDs = Entities.getChildrenIDs(_this.smartboard);
 
         MyAvatar.disableHandTouchForID(_this.smartboard);
 
-        _this.smartboardPieces.forEach(function(smartboardPiece) {
+        _this.smartboardChildrenIDs.forEach(function(smartboardPiece) {
             MyAvatar.disableHandTouchForID(smartboardPiece);
             var name = Entities.getEntityProperties(smartboardPiece, 'name').name;
             if (name === "Smartboard Palette Square") {
@@ -338,19 +328,17 @@
 
         if (!signalsConnected) {
             Screenshare.screenshareStopped.connect(onScreenshareStopped);
+            Screenshare.startScreenshareViewer.connect(onStartScreenshareViewer);
             signalsConnected = true;
         }
     }
 
 
-    function createRandomPaintSphere(){
+    function createRandomPaintSphere() {
         var numberPaletteSquares = _this.paletteSquares.length;
         var randomPaletteSquareIndex = Math.floor(Math.random() * numberPaletteSquares);
-        if (DEBUG) {
-            console.log("smartboardZoneClient.js: " + _this.entityID + ": `createRandomPaintSphere()`.");
-            console.log("paletteSquares[randomPaletteSquareIndex]", _this.paletteSquares[randomPaletteSquareIndex]);
-        }
-        Entities.callEntityMethod(_this.paletteSquares[randomPaletteSquareIndex],'createPaintSphere');
+
+        Entities.callEntityMethod(_this.paletteSquares[randomPaletteSquareIndex], 'createPaintSphere');
     }
 
 
@@ -359,18 +347,16 @@
     // 3. enable the smartboard functions
     function enterEntity() {
         if (DEBUG) {
-            console.log("smartboardZoneClient.js: " + _this.entityID + ": `enterEntity()`. Registering participant and creating local buttons...");
+            console.log("smartboardZoneClient.js: " + _this.entityID +
+                ": `enterEntity()`. Registering participant and creating local buttons...");
         }
 
         Entities.callEntityServerMethod(_this.entityID, "registerParticipant", [MyAvatar.sessionUUID]);
-        createRandomPaintSphere();
-        // TODO: This should be handled by the state machine
-        createLocalButtons();
     }
 
     
     // Check for existing paint sphere and delete if found
-    function removePaintSpheres() {
+    function maybeRemovePaintSpheres() {
         MyAvatar.getAvatarEntitiesVariant().forEach(function(avatarEntity) {
             var name = Entities.getEntityProperties(avatarEntity.id, 'name').name;
             if (name && (name === "Smartboard Paint Sphere" || name === "Smartboard Paint Sphere Material")) {
@@ -394,13 +380,14 @@
 
     // delete buttons and remove paintspheres
     function unload() {
-        removePaintSpheres();
+        maybeRemovePaintSpheres();
         Screenshare.stopScreenshare();
-        maybeRemoveLocalButtons();
+        maybeRemoveLocalScreenshareButton();
         maybeRemoveLocalWebEntity();
         maybeRemoveLocalPresenterDisplayName();
         if (signalsConnected) {
             Screenshare.screenshareStopped.disconnect(onScreenshareStopped);
+            Screenshare.startScreenshareViewer.disconnect(onStartScreenshareViewer);
         }
     }
     
@@ -412,16 +399,19 @@
         this.activePresenterUUID = "";
         this.currentBoardState = "screenshare";
         this.entityID;
-        this.screenshareButtonID;
-        this.whiteboardButtonID;
-        this.localWebEntityID;
-        this.localPresenterDisplayName;
+        this.ScreenshareStartStopButtonID = null;
+        this.localWebEntityID = null;
+        this.localWebEntityObject = null;
+        this.localPresenterDisplayName = null;
         this.screenshareModeFirstActivated = false;
         this.whiteboardOnlyZone = false;
         this.roomName = "";
         this.smartboard;
-        this.smartboardPieces;
+        this.smartboardChildrenIDs;
         this.paletteSquares = [];
+        this.projectAPIKey = "";
+        this.token = "";
+        this.sessionID = "";
 
         this.remotelyCallable = [
             'receiveBoardState',
@@ -431,7 +421,7 @@
 
     SmartboardZoneClient.prototype = {
         buttonPreloadComplete: buttonPreloadComplete,
-        updateButtonState: updateButtonState,
+        setButtonActivePresenterUUID: setButtonActivePresenterUUID,
         receiveBoardState: receiveBoardState,
         preload: preload,
         unload: unload,

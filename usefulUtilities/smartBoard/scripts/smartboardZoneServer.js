@@ -13,14 +13,26 @@
  
     // BOARD UI
     // send a message to all registered clients on the state of the board
+    var WHITEBOARD_STATUS_ICON = Script.resolvePath("../resources/models/button-state-whiteboard.fbx");
+    var SCREENSHARE_STATUS_ICON = Script.resolvePath("../resources/models/button-state-screenshare.fbx");
     function updateCurrentBoardState(id, args) {
         _this.currentBoardState = args[0];
         _this.activePresenterUUID = args[1];
 
-        _this.activePresenterUUID = _this.currentBoardState === "screenshare" ? _this.activePresenterUUID : "";
+        // The caller should do this for us, but just to make sure...
+        if (_this.currentBoardState === "screenshare" && _this.activePresenterUUID !== "") {
+            console.log("smartBoardZoneServer.js: " + _this.entityID + ": `updateCurrentBoardState()`." +
+                "Board state was updated to screenshare, but `activePresenterUUID` was not empty!");
+            _this.activePresenterUUID = "";
+        }
+
+        var smartboardStatusIcon = _this.currentBoardState === "screenshare" ? SCREENSHARE_STATUS_ICON : WHITEBOARD_STATUS_ICON;
+        Entities.editEntity(_this.smartboardStatusIconID, {modelURL: smartboardStatusIcon});
+        
         if (DEBUG) {
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `updateCurrentBoardState()`." +
-                "\n`_this.currentBoardState`: " + _this.currentBoardState + "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
+                "\n`_this.currentBoardState`: " + _this.currentBoardState +
+                "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
         }
 
         var participants = Object.keys(_this.participants);
@@ -38,8 +50,8 @@
 
         if (DEBUG) {
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `registerParticipant()`." +
-                "\n`UUID`: " + UUID +
-                "\n`_this.currentBoardState`: " + _this.currentBoardState + "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
+                "\n`UUID`: " + UUID + "\n`_this.currentBoardState`: " +
+                _this.currentBoardState + "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
         }
 
         _this.participants[UUID] = {
@@ -62,7 +74,8 @@
         if (DEBUG) {
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `removeParticipant()`." +
                 "\n`UUID`: " + UUID +
-                "\n`_this.currentBoardState`: " + _this.currentBoardState + "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
+                "\n`_this.currentBoardState`: " + _this.currentBoardState +
+                "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
         }
 
         if (_this.participants[UUID]) {
@@ -75,13 +88,13 @@
                 }
 
                 _this.activePresenterUUID = "";
-                updateCurrentBoardState(_this.entityID, ["selection", ""]);
+                updateCurrentBoardState(_this.entityID, ["whiteboard", ""]);
             }
         }
     }
 
 
-    // When the ESS  detects that an avatar has been removed from the participants group, call removeParticipant().
+    // When the ESS detects that an avatar has been removed from the participants group, call removeParticipant().
     function onAvatarRemovedEvent(UUID) {
         if (DEBUG) {
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `onAvatarRemovedEvent()`." +
@@ -122,6 +135,17 @@
             AvatarList.avatarRemovedEvent.connect(onAvatarRemovedEvent);
             signalsConnected = true;
         }
+
+        // TODO: Make sure the actual icon name matches whatever name we try to find it here
+        var smartboardChildrenIDS = Entities.getChildrenIDs(_this.smartboard);
+        for (var i = 0; i < smartboardChildrenIDS.length; i++) {
+            var childID = smartboardChildrenIDS[i];
+            var name = Entities.getEntityProperties(childID, "name").name;
+            if (name === "Smartboard Status Icon") {
+                _this.smartboardStatusIconID = childID;
+                break;
+            }
+        }
     }
 
 
@@ -132,7 +156,7 @@
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `unload()`.");
         }
 
-        updateCurrentBoardState(_this.entityID, ["selection", ""]);
+        updateCurrentBoardState(_this.entityID, ["whiteboard", ""]);
         
         if (signalsConnected) {
             AvatarList.avatarRemovedEvent.disconnect(onAvatarRemovedEvent);
@@ -150,7 +174,7 @@
         this.currentBoardState = "selection";
         this.participants = {};
         this.whiteboardOnlyZone = false;
-
+        this.smartboardStatusIconID;
         this.remotelyCallable = [
             "updateCurrentBoardState",
             "registerParticipant",
