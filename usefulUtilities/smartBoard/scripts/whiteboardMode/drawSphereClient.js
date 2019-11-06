@@ -18,7 +18,7 @@
     var MAXIMUM_MOVEMENT_TO_DRAW_M = 0.1;
     var MAXIMUM_DISTANCE_TO_SEARCH_M = 1;
     var MAXIMUM_DISTANCE_TO_DELETE_M = 0.03;
-    var STROKE_FORWARD_OFFSET_M = 0.01;
+    var STROKE_FORWARD_OFFSET_M;
 
     var WAIT_TO_CLEAN_UP_MS = 2000;
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 300;
@@ -86,6 +86,12 @@
     var readyToDraw = false;
     var initialLineStartDataReady = false;
 
+    function worldToLocal(worldPosition, framePosition, frameOrientation, optionalInverseFrameOrientation) {
+        var inverseFrameOrientation = optionalInverseFrameOrientation || Quat.inverse(frameOrientation);
+        var worldOffset = Vec3.subtract(worldPosition, framePosition);
+        return Vec3.multiplyQbyV(inverseFrameOrientation, worldOffset);
+    }
+
     var PaintSphere = function() {
         _this = this;
     };
@@ -111,10 +117,7 @@
                 parentJointIndex =MyAvatar.getJointIndex(dominantHandJoint);
                 print("ERROR: Falling back to dominant hand joint as index finger tip could not be found");
             }
-            console.log("PARENT JOINT INDEX\n\n", parentJointIndex);
             currentStrokeWidth = _this.getCurrentStrokeWidth();
-            console.log("CURRENT STROKE WIDTH \n\n", currentStrokeWidth);
-
             if (!_this.preloadSignalsConnected) {
                 MyAvatar.dominantHandChanged.connect(_this.handChanged);
                 tablet.tabletShownChanged.connect(_this.tabletShownChanged);
@@ -137,9 +140,6 @@
         prepareDrawingData: function() {
             try {
                 var properties = Entities.getEntityProperties(_this.entityID, ['userData','color']);
-                if (DEBUG) {
-                    console.log("drawSphereSpawnerClient.js: " + _this.entityID + ": `prepareDrawingData()`. userDataForSphere:", properties.userData);
-                }
                 var parsedUserData = JSON.parse(properties.userData);
             } catch (err) {
                 print("ERROR: Could not parse userData of color sphere.");
@@ -152,16 +152,14 @@
             _this.colorPaletteID = parsedUserData.colorPaletteID;
             _this.smartboard = Entities.getEntityProperties(_this.colorPaletteID, 'parentID').parentID;
             _this.smartboardParts = Entities.getChildrenIDs(_this.smartboard);
-            console.log("smartboardParts", JSON.stringify(_this.smartboardParts));
+            var MARGIN = 0.012;
+            STROKE_FORWARD_OFFSET_M = Entities.getEntityProperties(_this.colorPaletteID, 'dimensions').dimensions.z / 2 + MARGIN;
             _this.smartboardParts.forEach(function(smartboardPart) {
                 var name = Entities.getEntityProperties(smartboardPart, 'name').name;
                 if (name === "Smartboard Zone") {
                     _this.smartboardZone = smartboardPart;
                 }
             });
-            if (DEBUG) {
-                console.log("drawSphereClient.js: " + _this.entityID + ": `prepareDrawingData()`. _this.smartboard:", _this.smartboard, "");
-            }
             _this.smartboardParts.push(_this.smartboard);
             readyToDraw = true;
         },
@@ -203,9 +201,6 @@
         current line, draw a new one. */
         draw: function() {
             if (!readyToDraw) {
-                if (DEBUG) {
-                    console.log("drawSphereClient.js: " + _this.entityID + ": `draw(): Not ready to draw:")
-                }
                 return;
             }
             if (Vec3.distance(previousLinePoint, currentPoint) < MINIMUM_MOVEMENT_TO_DRAW_M ||
@@ -216,9 +211,6 @@
             var lineProperties = DEFAULT_LINE_PROPERTIES;
             var linePointsCount;
             if (!newLine) { // maybe editing existing line
-                if (DEBUG) {
-                    // console.log("drawSphereClient.js: " + _this.entityID + ": `draw(): NOT A NEW LINE:")
-                }
                 var previousLineProperties = Entities.getEntityProperties(polyLine, ['linePoints', 'normals', 
                     'strokeWidths', 'age']);
                 if (!(previousLineProperties.linePoints && previousLineProperties.normals && 
@@ -252,19 +244,12 @@
             // new line due to just beginning to draw or starting new to continue line with too many points. 
             // All lines have some previous data saved from the initial point, actual new lines have no line points yet
             if (newLine) {
-                if (DEBUG) {
-                    console.log("drawSphereClient.js: " + _this.entityID + ": `draw(): IS A NEW LINE:",
-                    JSON.stringify(lineStartPosition));
-                }
                 lineProperties.position = lineStartPosition;
-                lineProperties.localPosition = {x: 0, y: 0, z: 0.07};
-                lineProperties.localRotation = Quat.fromPitchYawRollDegrees(0, -90, 0);
                 lineProperties.linePoints = [{x: 0, y: 0, z: 0 }, displacementFromStart];
                 lineProperties.normals = [previousNormal, currentNormal];
                 lineProperties.strokeWidths = [previousStrokeWidth, currentStrokeWidth];
                 lineProperties.color = _this.color;
                 lineProperties.textures = _this.texture;
-                lineProperties.parentID = _this.smartboard;
                 if (polyLine && _this.smartboard) {
                     Entities.editEntity(polyLine, { parentID: _this.smartboard });
                 }
@@ -329,37 +314,23 @@
         an intersection, and project point onto board if necessary. If drawing in air, project point forward 1M in 
         front of camera. Begin drawing sound and store initial data. If deleting, begin at current point. */
         mousePressed: function(event) {
-            if (DEBUG) {
-                console.log("drawSphereClient.js: " + _this.entityID + ": `mousePressed()");
-            }
             if (!_this.smartboardZone) {
-                if (DEBUG) {
-                    console.log("drawSphereClient.js: " + _this.entityID + ": `mousePressed():: !_this.smartboardZone");
-                }
                 return;
             }
             if (!_this.isUserInZone(_this.smartboardZone)) {
-                if (DEBUG) {
-                    console.log("drawSphereClient.js: " + _this.entityID + ": `mousePressed():: !_this.isUserInZone");
-                }
                 Entities.deleteEntity(_this.entityID);
             }
             if (Settings.getValue("io.highfidelity.isEditing", false) || tablet.tabletShown) {
                 return;
             }
             var smartboardIntersectionData = _this.getDesktopIntersectionData(event);
-            console.log("\n\n #######\n", JSON.stringify(smartboardIntersectionData, null, 4));
             if (smartboardIntersectionData === -1 || !smartboardIntersectionData.intersects) {
-                if (DEBUG) {
-                    console.log("drawSphereClient.js: " + _this.entityID + ": `mousePressed():: smartboardIntersectionData === -1 || !smartboardIntersectionData.intersects");
-                }
                 return;
             }
             _this.projectPointOntoBoard(smartboardIntersectionData, false);
             if (event.isLeftButton) {
                 drawingInDesktop = true;
                 currentStrokeWidth = _this.getCurrentStrokeWidth();
-                console.log("\n\ncurrentStrokeWidth: ", currentStrokeWidth);
                 _this.playSound(DRAW_SOUND, DRAW_SOUND_VOLUME, currentPoint, true, true);
                 lineStartPosition = currentPoint;
             } else if (event.isMiddleButton) {
@@ -374,7 +345,18 @@
                 return;
             }
             var smartboardIntersectionData = _this.getDesktopIntersectionData(event);
-            console.log("\n\n #######\n", JSON.stringify(smartboardIntersectionData, null, 4));
+            var boardProps = Entities.getEntityProperties(_this.smartboard, ["position, dimensions"]);
+
+            var localSpace = worldToLocal(smartboardIntersectionData.intersection, boardProps.position, boardProps.rotation);
+            var margin = 0.12;
+            var xDimension = boardProps.dimensions.x / 2 - margin;
+            var yDimension = boardProps.dimensions.y / 2 - margin / 2;
+            // var zDimension = boardProps.dimensions.z / 2 - margin;
+            if (Math.abs(localSpace.x) > xDimension ||Math.abs(localSpace.y) > yDimension) {
+                _this.stopDrawing();
+                return;
+            }
+
             if (smartboardIntersectionData === -1 || !smartboardIntersectionData.intersects) {
                 _this.stopDrawing();
                 return;
@@ -383,7 +365,6 @@
             previousNormal = currentNormal;
             previousStrokeWidth = currentStrokeWidth;
             currentStrokeWidth = _this.getCurrentStrokeWidth();
-            // console.log("\n\nMOUSECONTINUR: currentStrokeWidth: ", currentStrokeWidth);
             _this.projectPointOntoBoard(smartboardIntersectionData, false);
             if (event.isLeftButton) {
                 displacementFromStart = Vec3.subtract(currentPoint, lineStartPosition);
@@ -403,22 +384,14 @@
             }
         },
 
-        /* If there is an intersection with the smartboard, project the point onto the surface, set its normals to match, 
-        and then move it slightly in front of the board. */
         projectPointOntoBoard: function(smartboardIntersectionData, desktop) {
             currentPoint = smartboardIntersectionData.intersection;
             var smartboardProperties = Entities.getEntityProperties(_this.smartboard, ['position', 'rotation']);
             currentNormal = Vec3.multiply(-1, Quat.getFront(smartboardProperties.rotation));
-            console.log("1 ####\ncurrentNormal", JSON.stringify(currentNormal, null, 4));
             var distanceSmartboardPlane = Vec3.dot(currentNormal, smartboardProperties.position);
-            console.log("2 ####\distanceSmartboardPlane", JSON.stringify(distanceSmartboardPlane, null, 4));
-
             var distanceLocal = Vec3.dot(currentNormal, currentPoint) - distanceSmartboardPlane;
-            console.log("3 ####\distanceLocal", JSON.stringify(distanceLocal, null, 4));
             currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(distanceLocal, currentNormal));
-            console.log("4 ####\currentPoint1", JSON.stringify(currentPoint, null, 4));
-            currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(currentNormal, STROKE_FORWARD_OFFSET_M));
-            console.log("5 ####\currentPoint2", JSON.stringify(currentPoint, null, 4));
+            currentPoint = Vec3.subtract(currentPoint, Vec3.multiply(currentNormal, -STROKE_FORWARD_OFFSET_M));
         },
 
         /* Create a laser to show where the user is drawing or deleting */

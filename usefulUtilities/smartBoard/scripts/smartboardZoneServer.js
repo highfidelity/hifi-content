@@ -17,6 +17,7 @@
         _this.currentBoardState = args[0];
         _this.activePresenterUUID = args[1];
 
+        _this.activePresenterUUID = _this.currentBoardState === "screenshare" ? _this.activePresenterUUID : "";
         if (DEBUG) {
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `updateCurrentBoardState()`." +
                 "\n`_this.currentBoardState`: " + _this.currentBoardState + "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);

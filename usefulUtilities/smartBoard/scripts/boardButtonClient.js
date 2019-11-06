@@ -73,9 +73,12 @@
             console.log("boardButtonClient.js: " + _this.entityID + ": `mousePressOnEntity()`." +
                 "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
         }
-
-        var presenterUUID = _this.activePresenterUUID ? _this.activePresenterUUID : "";
-        Entities.callEntityServerMethod(_this.screenshareZone, "updateCurrentBoardState", [_this.buttonType, presenterUUID]);
+        if (_this.activePresenterUUID && _this.activePresenterUUID !== MyAvatar.sessionUUID) {
+            console.log ("returning");
+            return;
+        }
+        console.log("calling update board")
+        Entities.callEntityServerMethod(_this.screenshareZone, "updateCurrentBoardState", [_this.buttonType, MyAvatar.sessionUUID]);
     }
 
 
