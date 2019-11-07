@@ -20,9 +20,9 @@
         _this.activePresenterUUID = args[1];
 
         // The caller should do this for us, but just to make sure...
-        if (_this.currentBoardState === "screenshare" && _this.activePresenterUUID !== "") {
+        if (_this.currentBoardState === "whiteboard" && _this.activePresenterUUID !== "") {
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `updateCurrentBoardState()`." +
-                "Board state was updated to screenshare, but `activePresenterUUID` was not empty!");
+                "Board state was updated to whiteboard, but `activePresenterUUID` was not empty!");
             _this.activePresenterUUID = "";
         }
 
@@ -171,7 +171,7 @@
         _this = this;
         this.entityID;
         this.activePresenterUUID = "";
-        this.currentBoardState = "selection";
+        this.currentBoardState = "whiteboard";
         this.participants = {};
         this.whiteboardOnlyZone = false;
         this.smartboardStatusIconID;

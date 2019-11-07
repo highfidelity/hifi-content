@@ -24,7 +24,7 @@
         
         for (var i = 0; i < children.length; i++) {
             var name = Entities.getEntityProperties(children[i], 'name').name;
-            if (name === "Smartboard Zone") {
+            if (name && name === "Smartboard Zone") {
                 _this.screenshareZoneID = children[i];
                 break;
             }
@@ -50,7 +50,7 @@
 
     // UI
     function setActivePresenterUUID(id, args) {
-        _this.activePresenterUUID = args[1];
+        _this.activePresenterUUID = args[0];
 
         if (DEBUG) {
             console.log("boardButtonClient.js: " + _this.entityID + "`setActivePresenterUUID()`." +
@@ -64,17 +64,15 @@
     // When the button is pressed, call the Smartboard zone server script to update the
     // current board state and send in the requested presenter if there is one
     function mousePressOnEntity() {
+        var newState = _this.activePresenterUUID === MyAvatar.sessionUUID ? "whiteboard" : "screenshare";
+
         if (DEBUG) {
             console.log("boardButtonClient.js: " + _this.entityID + ": `mousePressOnEntity()`." +
-                "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
+                "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID + "\n`newState`: " + newState);
         }
-        if (_this.activePresenterUUID && _this.activePresenterUUID !== MyAvatar.sessionUUID) {
-            console.log ("returning");
-            return;
-        }
-        console.log("calling update board");
+
         Entities.callEntityServerMethod(_this.screenshareZoneID,
-            "updateCurrentBoardState", ["screenshare", MyAvatar.sessionUUID]);
+            "updateCurrentBoardState", [newState, newState === "whiteboard" ? "" : MyAvatar.sessionUUID]);
     }
 
 

@@ -46,20 +46,27 @@ function initializeTokboxSession() {
 function onScriptEventReceived(message){
     try {
         message = JSON.parse(message);
-        var data = message.data;
-        switch (message.type) {
-            case "receiveConnectionInfo":
-                apiKey = data.apiKey;
-                sessionId = data.sessionId;
-                token = data.token;
-                initializeTokboxSession();
-                break;
-            default:
-                console.log("screenshareClient.js: Unrecognized command from on script event received")
-                break;
-        }
     } catch (e) {
         console.log("screenshareClient.js: error parsing incoming message");
+        return;
+    }
+
+    if (message.app !== "screenshare") {
+        return;
+    }
+    
+    var data = message.data;
+    switch (message.method) {
+        case "receiveConnectionInfo":
+            console.log("screenshareClient.js: Received connection info!");
+            apiKey = data.apiKey;
+            sessionId = data.sessionId;
+            token = data.token;
+            initializeTokboxSession();
+            break;
+        default:
+            console.log("screenshareClient.js: Unrecognized command from on script event received");
+            break;
     }
 }
 
@@ -70,7 +77,7 @@ function onLoad() {
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
-            app: "appreciate",
+            app: "screenshare",
             method: "eventBridgeReady"
         }));
     }, EVENTBRIDGE_SETUP_DELAY);
