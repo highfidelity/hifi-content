@@ -59,7 +59,7 @@
     // Updates the state of the local entity buttons.
     // Send the `activePresenterUUID` (even if it's empty) - that helps the buttons know who can change the Smartboard's state.
     function setButtonActivePresenterUUID() {
-        if (!buttonIsReady) {
+        if (!buttonIsReady || !_this.screenshareStartStopButtonID) {
             return;
         }
 

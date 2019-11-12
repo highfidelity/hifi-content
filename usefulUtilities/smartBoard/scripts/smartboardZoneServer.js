@@ -22,7 +22,7 @@
         // The caller should do this for us, but just to make sure...
         if (_this.currentBoardState === "screenshare" && !_this.activePresenterUUID) {
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `updateCurrentBoardState()`." +
-                "Board state was updated to screenshare, but `activePresenterUUID` was not empty!");
+                "Board state was updated to whiteboard, but `activePresenterUUID` was not empty!");
             _this.activePresenterUUID = "";
         }
 

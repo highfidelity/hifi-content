@@ -63,6 +63,25 @@ function onScriptEventReceived(message){
         }
     } catch (e) {
         console.log("screenshareClient.js: error parsing incoming message");
+        return;
+    }
+
+    if (message.app !== "screenshare") {
+        return;
+    }
+    
+    var data = message.data;
+    switch (message.method) {
+        case "receiveConnectionInfo":
+            console.log("screenshareClient.js: Received connection info!");
+            apiKey = data.apiKey;
+            sessionId = data.sessionId;
+            token = data.token;
+            initializeTokboxSession();
+            break;
+        default:
+            console.log("screenshareClient.js: Unrecognized command from on script event received");
+            break;
     }
 }
 
