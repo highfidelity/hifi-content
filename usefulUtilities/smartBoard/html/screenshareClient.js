@@ -74,8 +74,8 @@ function onScriptEventReceived(message){
     switch (message.method) {
         case "receiveConnectionInfo":
             console.log("screenshareClient.js: Received connection info!");
-            apiKey = data.apiKey;
-            sessionId = data.sessionId;
+            projectAPIKey = data.projectAPIKey;
+            sessionID = data.sessionID;
             token = data.token;
             initializeTokboxSession();
             break;
