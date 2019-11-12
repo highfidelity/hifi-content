@@ -14,13 +14,13 @@
     // BOARD UI
     // send a message to all registered clients on the state of the board
     var WHITEBOARD_STATUS_ICON = Script.resolvePath("../resources/models/button-state-whiteboard.fbx");
-    var SCREENSHARE_STATUS_ICON = Script.resolvePath("../resources/models/button-state-screenshare.fbx");
+    var SCREENSHARE_STATUS_ICON = Script.resolvePath("../resources/models/button-state-screen-share.fbx");
     function updateCurrentBoardState(id, args) {
         _this.currentBoardState = args[0];
         _this.activePresenterUUID = args[1];
 
         // The caller should do this for us, but just to make sure...
-        if (_this.currentBoardState === "screenshare" && _this.activePresenterUUID !== "") {
+        if (_this.currentBoardState === "screenshare" && !_this.activePresenterUUID) {
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `updateCurrentBoardState()`." +
                 "Board state was updated to screenshare, but `activePresenterUUID` was not empty!");
             _this.activePresenterUUID = "";
@@ -30,9 +30,10 @@
         Entities.editEntity(_this.smartboardStatusIconID, {modelURL: smartboardStatusIcon});
         
         if (DEBUG) {
-            console.log("smartBoardZoneServer.js: " + _this.entityID + ": `updateCurrentBoardState()`." +
+            console.log("args:", args, "smartBoardZoneServer.js: " + _this.entityID + ": `updateCurrentBoardState()`." +
                 "\n`_this.currentBoardState`: " + _this.currentBoardState +
-                "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
+                "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID +
+                "\nparticipants:" + JSON.stringify(_this.participants, null, 4));
         }
 
         var participants = Object.keys(_this.participants);
@@ -40,8 +41,51 @@
             Entities.callEntityClientMethod(participants[i], _this.entityID,
                 "receiveBoardState", [_this.currentBoardState, _this.activePresenterUUID]);
         }
+        setVisibilityOfSmartboardWhiteboardComponents();
+        setVisiblityOfSmartboardScreenGlass();
     }
 
+    // The following Smartboard Whiteboard components should be visible/invisible:
+    // 1. Whiteboard palette circle background
+    // 2. Whiteboard palette circles
+    // 3. Whiteboard "reset" button
+    // 4. Whiteboard polylines
+    var HIDE_POLYLINES_IN_SCREENSHARE_MODE = false;
+    function setVisibilityOfSmartboardWhiteboardComponents() {
+        var smartboardChildrenIDs = Entities.getChildrenIDs(_this.smartboard);
+        var entityNamesToShowOrHide = ["reset", "palette", "erase"];
+        if (HIDE_POLYLINES_IN_SCREENSHARE_MODE) {
+            entityNamesToShowOrHide.push("polyline");
+        }
+        smartboardChildrenIDs.forEach(function(smartboardPiece) {
+            var entityName = Entities.getEntityProperties(smartboardPiece, 'name').name;
+            if (!entityName) {
+                return;
+            }
+
+            var lowerCaseName = entityName.toLowerCase();
+            var foundWhiteBoardComponent = false;
+            for (var i = 0; i < entityNamesToShowOrHide.length; i++) {
+                if (lowerCaseName.indexOf(entityNamesToShowOrHide[i]) === -1) {
+                    continue;
+                } else {
+                    foundWhiteBoardComponent = true;
+                    break;
+                }
+            }
+            if (foundWhiteBoardComponent) {
+                Entities.editEntity(smartboardPiece, {visible: _this.currentBoardState === "whiteboard"});
+            }
+        });
+    }
+
+    function setVisiblityOfSmartboardScreenGlass(){
+        if (_this.currentBoardState === "whiteboard") {
+            Entities.editEntity(_this.smartboardScreenshareGlass, {visible: false });
+            return;
+        }
+        Entities.editEntity(_this.smartboardScreenshareGlass, { visible: true });
+    }
 
     // PARTICIPANTS
     // When a client first enters the zone, register them and send them the state of the board
@@ -118,7 +162,9 @@
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `preload()`.");
         }
 
-        var userData = Entities.getEntityProperties(entityID, ["userData"]).userData;
+        var props = Entities.getEntityProperties(entityID, ["userData", "parentID"]);
+        var userData = props.userData;
+        _this.smartboard = props.parentID;
         var parsedData = {};
         try {
             parsedData = JSON.parse(userData);
@@ -138,9 +184,11 @@
 
         // TODO: Make sure the actual icon name matches whatever name we try to find it here
         var smartboardChildrenIDS = Entities.getChildrenIDs(_this.smartboard);
+        console.log("\n\n\nABOUT TO CHECK NAMES");
         for (var i = 0; i < smartboardChildrenIDS.length; i++) {
             var childID = smartboardChildrenIDS[i];
             var name = Entities.getEntityProperties(childID, "name").name;
+            console.log("name", name);
             if (name === "Smartboard Status Icon") {
                 _this.smartboardStatusIconID = childID;
                 break;
@@ -170,8 +218,9 @@
     function SmartboardZoneServer() {
         _this = this;
         this.entityID;
+        this.smartboard;
         this.activePresenterUUID = "";
-        this.currentBoardState = "selection";
+        this.currentBoardState = "whiteboard";
         this.participants = {};
         this.whiteboardOnlyZone = false;
         this.smartboardStatusIconID;

@@ -36,24 +36,32 @@
 
     var ACTIVE_SCREENSHARE_MODEL_URL = Script.resolvePath("../resources/models/button-stop-screen-share.fbx");
     var INACTIVE_SCREENSHARE_MODEL_URL = Script.resolvePath("../resources/models/button-start-screen-share.fbx");
+    // var START_STOP_BUTTON_DIMENSIONS = {x: 1.0394, Y: 0.1300, z: 0.0243};
     function updateModelURL() {
-        var newModelURL = _this.activePresenterUUID === "" ? INACTIVE_SCREENSHARE_MODEL_URL : ACTIVE_SCREENSHARE_MODEL_URL;
+        var newModelURL = !_this.activePresenterUUID ? INACTIVE_SCREENSHARE_MODEL_URL : ACTIVE_SCREENSHARE_MODEL_URL;
 
         if (DEBUG) {
             console.log("boardButtonClient.js: " + _this.entityID + "`updateModelURL()`." +
                 "\n`newModelURL`: " + newModelURL + "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
         }
-
-        Entities.editEntity(_this.entityID, {modelURL: newModelURL});
+        Entities.editEntity(_this.entityID, {
+            modelURL: newModelURL,
+            visible: true
+        });
     }
 
 
     // UI
     function setActivePresenterUUID(id, args) {
+        _this.currentBoardState = args[0];
         _this.activePresenterUUID = args[1];
 
+        if (_this.currentBoardState === "whiteboard") {
+            _this.activePresenterUUID = "";
+        }
+
         if (DEBUG) {
-            console.log("boardButtonClient.js: " + _this.entityID + "`setActivePresenterUUID()`." +
+            console.log("args:", args, "\nboardButtonClient.js: " + _this.entityID + "`setActivePresenterUUID()`." +
                 "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
         }
 
@@ -73,8 +81,9 @@
             return;
         }
         console.log("calling update board");
+        var newState = _this.currentBoardState === "screenshare" ? "whiteboard": "screenshare";
         Entities.callEntityServerMethod(_this.screenshareZoneID,
-            "updateCurrentBoardState", ["screenshare", MyAvatar.sessionUUID]);
+            "updateCurrentBoardState", [newState, MyAvatar.sessionUUID]);
     }
 
 
@@ -82,6 +91,7 @@
     var _this;
     function SmartboardButtonClient() {
         _this = this;
+        this.currentBoardState = "whiteboard";
         this.activePresenterUUID = "";
         this.screenshareZoneID;
         this.entityID;

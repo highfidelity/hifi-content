@@ -300,7 +300,7 @@
             if (smartboardIntersectionData.intersects) {
                 var intersectedSmartboardPartName = Entities.getEntityProperties(smartboardIntersectionData.entityID, 
                     'name').name;
-                if (intersectedSmartboardPartName !== "Smartboard") {
+                if (intersectedSmartboardPartName !== "Smartboard Screenshare Glass") {
                     if (drawingInDesktop) {
                         _this.stopDrawing();
                     }
@@ -350,7 +350,7 @@
             var localSpace = worldToLocal(smartboardIntersectionData.intersection, boardProps.position, boardProps.rotation);
             var margin = 0.12;
             var xDimension = boardProps.dimensions.x / 2 - margin;
-            var yDimension = boardProps.dimensions.y / 2 - margin / 2;
+            var yDimension = boardProps.dimensions.y / 2 - margin / 1.5;
             // var zDimension = boardProps.dimensions.z / 2 - margin;
             if (Math.abs(localSpace.x) > xDimension ||Math.abs(localSpace.y) > yDimension) {
                 _this.stopDrawing();

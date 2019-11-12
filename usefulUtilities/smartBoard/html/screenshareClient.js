@@ -8,17 +8,17 @@ function handleError(error) {
 }
 
 // Tokbox
-var apiKey;
-var sessionId;
+var projectAPIKey;
+var sessionID;
 var token;
 
 
 var session;
 
 function initializeTokboxSession() {
-    session = OT.initSession(apiKey, sessionId);
+    session = OT.initSession(projectAPIKey, sessionID);
     session.on('streamCreated', function streamCreated(event) {
-        if (event.stream.id === sessionId) {
+        if (event.stream.id === sessionID) {
             console.log("EVENT FROM STREAM CREATED", JSON.stringify(event));
         }
         var subscriberOptions = {
@@ -43,14 +43,17 @@ function initializeTokboxSession() {
 
 
 // main
+console.log("\n\n $$$$$$$$$$$$$$$$$$$$$$$$ \n\n");
 function onScriptEventReceived(message){
+    console.log("message: " + typeof message);
+    console.log("\n\n !! RECIEVED MESSAGE !! \n\n" + JSON.stringify(message));
     try {
-        message = JSON.parse(message);
+        // message = JSON.parse(message);
         var data = message.data;
-        switch (message.type) {
+        switch (message.method) {
             case "receiveConnectionInfo":
-                apiKey = data.apiKey;
-                sessionId = data.sessionId;
+                projectAPIKey = data.projectAPIKey;
+                sessionID = data.sessionID;
                 token = data.token;
                 initializeTokboxSession();
                 break;
@@ -70,7 +73,7 @@ function onLoad() {
     setTimeout(function() {
         EventBridge.scriptEventReceived.connect(onScriptEventReceived);
         EventBridge.emitWebEvent(JSON.stringify({
-            app: "appreciate",
+            app: "screenshare",
             method: "eventBridgeReady"
         }));
     }, EVENTBRIDGE_SETUP_DELAY);
