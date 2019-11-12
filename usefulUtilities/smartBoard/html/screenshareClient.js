@@ -12,7 +12,7 @@ function handleError(error) {
 // Needed to create the session from Tokbox.
 // 1. Uses the projectAPIKey and sessionID to init a tokbox session
 // 2. Once someone creats a stream to that sessionID, we subscribe to it using
-// options from 
+// options from the tokbox configuration.
 var session;
 function initializeTokboxSession() {
     session = OT.initSession(projectAPIKey, sessionID);
@@ -42,31 +42,12 @@ function initializeTokboxSession() {
 var projectAPIKey;
 var sessionID;
 var token;
-function onScriptEventReceived(message){
-    try {
-        // message = JSON.parse(message);
-        var data = message.data;
-        switch (message.method) {
-            case "receiveConnectionInfo":
-                projectAPIKey = data.projectAPIKey;
-                sessionID = data.sessionID;
-                token = data.token;
-                initializeTokboxSession();
-                break;
-            default:
-                console.log("screenshareClient.js: Unrecognized command from on script event received")
-                break;
-        }
-    } catch (e) {
-        console.log("screenshareClient.js: error parsing incoming message");
-        return;
-    }
-
+function onScriptEventReceived(message){    
     if (message.app !== "screenshare") {
         return;
     }
-    
     var data = message.data;
+
     switch (message.method) {
         case "receiveConnectionInfo":
             projectAPIKey = data.projectAPIKey;
@@ -75,7 +56,7 @@ function onScriptEventReceived(message){
             initializeTokboxSession();
             break;
         default:
-            console.log("screenshareClient.js: Unrecognized command from on script event received");
+            console.log("screenshareClient.js: Unrecognized command from on script event received")
             break;
     }
 }
