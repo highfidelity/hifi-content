@@ -36,7 +36,6 @@
 
     var ACTIVE_SCREENSHARE_MODEL_URL = Script.resolvePath("../resources/models/button-stop-screen-share.fbx");
     var INACTIVE_SCREENSHARE_MODEL_URL = Script.resolvePath("../resources/models/button-start-screen-share.fbx");
-    // var START_STOP_BUTTON_DIMENSIONS = {x: 1.0394, Y: 0.1300, z: 0.0243};
     function updateModelURL() {
         var newModelURL = !_this.activePresenterUUID ? INACTIVE_SCREENSHARE_MODEL_URL : ACTIVE_SCREENSHARE_MODEL_URL;
 

@@ -10,8 +10,6 @@
 
 (function() {
     var DEBUG = true;
-    // DEPENDENCIES
-    var CONFIG = Script.require("./config.js");
 
     // BOARD UI
     // If a new avatar enters the Smartboard Zone:
