@@ -184,11 +184,9 @@
 
         // TODO: Make sure the actual icon name matches whatever name we try to find it here
         var smartboardChildrenIDS = Entities.getChildrenIDs(_this.smartboard);
-        console.log("\n\n\nABOUT TO CHECK NAMES");
         for (var i = 0; i < smartboardChildrenIDS.length; i++) {
             var childID = smartboardChildrenIDS[i];
             var name = Entities.getEntityProperties(childID, "name").name;
-            console.log("name", name);
             if (name === "Smartboard Status Icon") {
                 _this.smartboardStatusIconID = childID;
                 break;

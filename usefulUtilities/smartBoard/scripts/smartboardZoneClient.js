@@ -106,7 +106,6 @@
         }
 
         if (DEBUG) {
-            console.log("\n\n\n\n TEST \n\n\n\n");
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `setupLocalButton()`.");
         }
         
@@ -209,7 +208,6 @@
             }
             if (name === "Smartboard Screenshare Glass") {
                 _this.smartboardScreenshareGlass = smartboardPiece;
-                console.log("_this.smartboardScreenshareGlass::", _this.smartboardScreenshareGlass);
             }
         });
 

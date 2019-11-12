@@ -72,17 +72,13 @@
     // When the button is pressed, call the Smartboard zone server script to update the
     // current board state and send in the requested presenter if there is one
     function mousePressOnEntity() {
-        var newState = _this.activePresenterUUID === MyAvatar.sessionUUID ? "whiteboard" : "screenshare";
-
         if (DEBUG) {
             console.log("boardButtonClient.js: " + _this.entityID + ": `mousePressOnEntity()`." +
-                "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID + "\n`newState`: " + newState);
+                "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID + "\n");
         }
         if (_this.activePresenterUUID && _this.activePresenterUUID !== MyAvatar.sessionUUID) {
-            console.log ("returning");
             return;
         }
-        console.log("calling update board");
         var newState = _this.currentBoardState === "screenshare" ? "whiteboard": "screenshare";
         Entities.callEntityServerMethod(_this.screenshareZoneID,
             "updateCurrentBoardState", [newState, MyAvatar.sessionUUID]);

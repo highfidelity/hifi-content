@@ -8,19 +8,15 @@ function handleError(error) {
 }
 
 // Tokbox
-var projectAPIKey;
-var sessionID;
-var token;
 
-
+// Needed to create the session from Tokbox.
+// 1. Uses the projectAPIKey and sessionID to init a tokbox session
+// 2. Once someone creats a stream to that sessionID, we subscribe to it using
+// options from 
 var session;
-
 function initializeTokboxSession() {
     session = OT.initSession(projectAPIKey, sessionID);
     session.on('streamCreated', function streamCreated(event) {
-        if (event.stream.id === sessionID) {
-            console.log("EVENT FROM STREAM CREATED", JSON.stringify(event));
-        }
         var subscriberOptions = {
             insertMode: 'append',
             width: '100%',
@@ -43,10 +39,10 @@ function initializeTokboxSession() {
 
 
 // main
-console.log("\n\n $$$$$$$$$$$$$$$$$$$$$$$$ \n\n");
+var projectAPIKey;
+var sessionID;
+var token;
 function onScriptEventReceived(message){
-    console.log("message: " + typeof message);
-    console.log("\n\n !! RECIEVED MESSAGE !! \n\n" + JSON.stringify(message));
     try {
         // message = JSON.parse(message);
         var data = message.data;
@@ -73,7 +69,6 @@ function onScriptEventReceived(message){
     var data = message.data;
     switch (message.method) {
         case "receiveConnectionInfo":
-            console.log("screenshareClient.js: Received connection info!");
             projectAPIKey = data.projectAPIKey;
             sessionID = data.sessionID;
             token = data.token;

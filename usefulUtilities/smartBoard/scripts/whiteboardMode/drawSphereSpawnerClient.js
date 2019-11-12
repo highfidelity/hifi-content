@@ -48,9 +48,6 @@
         attach paint sphere to. Create a paint sphere using the color of this square that was clicked. Attach a material 
         to the sphere using a texture found inthe userData of this square. */
         createPaintSphere: function() {
-            if (DEBUG) {
-                console.log("drawSphereSpawnerClient.js: " + _this.entityID + ": `createPaintSphere()`.");
-            }
             _this.removePaintSpheres();
             dominantHand = MyAvatar.getDominantHand();
             dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";
@@ -68,10 +65,6 @@
                 textureURL: userData.textureURL,
                 colorPaletteID: _this.entityID
             });
-            if (DEBUG) {
-                console.log("drawSphereSpawnerClient.js: " + _this.entityID + ": `createPaintSphere()`. userDataForSphere:", userDataForSphere);
-                console.log(Script.resolvePath("./resources/models/sphere-white-emissive.fbx"));
-            }
             var paintSphere = Entities.addEntity({
                 name: "Smartboard Paint Sphere",
                 type: "Model",
