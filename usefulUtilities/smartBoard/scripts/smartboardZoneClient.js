@@ -281,6 +281,7 @@
         if (signalsConnected) {
             Screenshare.screenshareStopped.disconnect(onScreenshareStopped);
         }
+        signalsConnected = false;
     }
     
 
