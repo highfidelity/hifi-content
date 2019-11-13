@@ -168,9 +168,18 @@
     }
 
 
-    function onScreenshareStopped() {
+    function onScreenshareError() {
         if (DEBUG) {
-            console.log("smartboardZoneClient.js: " + _this.entityID + ": `onScreenshareStopped()`.");
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": `onScreenshareError()`.");
+        }
+        
+        Entities.callEntityServerMethod(_this.entityID, "updateCurrentBoardState", ["whiteboard", ""]);
+    }
+
+
+    function onScreenshareProcessTerminated() {
+        if (DEBUG) {
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": `onScreenshareProcessTerminated()`.");
         }
         
         Entities.callEntityServerMethod(_this.entityID, "updateCurrentBoardState", ["whiteboard", ""]);
@@ -241,7 +250,8 @@
         }
 
         if (!signalsConnected) {
-            Screenshare.screenshareStopped.connect(onScreenshareStopped);
+            Screenshare.screenshareProcessTerminated.connect(onScreenshareProcessTerminated);
+            Screenshare.screenshareError.connect(onScreenshareError);
             signalsConnected = true;
         }
 
@@ -279,7 +289,8 @@
         maybeRemoveLocalScreenshareButton();
         maybeRemoveLocalPresenterDisplayName();
         if (signalsConnected) {
-            Screenshare.screenshareStopped.disconnect(onScreenshareStopped);
+            Screenshare.screenshareError.disconnect(onScreenshareError);
+            Screenshare.screenshareProcessTerminated.disconnect(onScreenshareProcessTerminated);
         }
         signalsConnected = false;
     }
