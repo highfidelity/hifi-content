@@ -1,11 +1,12 @@
-//
+'use strict';
 //  smartboardZoneClient.js
 //
-//  Additional code by Milad Nazeri 10/30/2019
+//  Milad Nazeri and Zach Fox 10/30/2019
 //  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+
 /* globals Screenshare */
 
 (function() {
@@ -97,7 +98,6 @@
         dimensions: {x: 1.0394, y: 0.1300, z: 0.0243},
         visible: false
     };
-
     function setupLocalButton() {
         if (_this.screenshareStartStopButtonID) {
             return;
@@ -129,25 +129,29 @@
     }
 
 
+    // Grab the presenter's display name and create a text entity above the smartboard.
+    // After it is created, get the text size for positioning.
     var DEFAULT_TEXTBOX_PROPS = {
         type: "Text",
         name: "Smartboard Presenting Text",
         backgroundAlpha: 0.0
     };
-
+    var LINE_HEIGHT = 0.1;
+    var PRESENTER_TEXT_DELAY_MS = 100;
     function maybeCreateLocalPresenterDisplayName() {
         if (_this.localPresenterDisplayName) {
             return;
         }
         var textProps = DEFAULT_TEXTBOX_PROPS;
-        textProps.parentID = _this.smartboard;
-        var lineHeight = 0.1;
-        textProps.dimensions = {x: 0, y: lineHeight, z: 0.1009};
-        textProps.localPosition = {x: 0, y: 1.2563, z: entityOffsetFromBoard + margin};
         var displayName = AvatarManager.getAvatar(_this.activePresenterUUID).displayName; 
+
+        textProps.parentID = _this.smartboard;
+        textProps.dimensions = {x: 0, y: LINE_HEIGHT, z: 0.1009};
+        textProps.localPosition = {x: 0, y: 1.2563, z: entityOffsetFromBoard + margin};
         textProps.text = displayName + " is presenting";
         textProps.visible = false;
         _this.localPresenterDisplayName = Entities.addEntity(textProps, "local");
+
         Script.setTimeout(function(){
             var textSize = Entities.textSize(_this.localPresenterDisplayName, textProps.text);
             textProps.dimensions.x = textSize.width * 1.15;
@@ -156,10 +160,11 @@
                 visible: true
             };
             Entities.editEntity(_this.localPresenterDisplayName, newProps);
-        }, 100);
+        }, PRESENTER_TEXT_DELAY_MS);
     }
 
 
+    // Check to see if there is a presenter name text box to remove
     function maybeRemoveLocalPresenterDisplayName() {
         if (_this.localPresenterDisplayName) {
             Entities.deleteEntity(_this.localPresenterDisplayName);            
@@ -167,7 +172,8 @@
         _this.localPresenterDisplayName = false;
     }
 
-
+    
+    // If there is a problem with screenshare, then update the board back to whiteboard mode
     function onScreenshareError() {
         if (DEBUG) {
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `onScreenshareError()`.");
@@ -177,6 +183,7 @@
     }
 
 
+    // Similar to function above but related to the process being terminated and not necessarily for an error
     function onScreenshareProcessTerminated() {
         if (DEBUG) {
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `onScreenshareProcessTerminated()`.");
@@ -232,6 +239,7 @@
     }
 
 
+    // Make sure an avatar has a paint sphere when they enter the zone
     function createRandomPaintSphere() {
         var numberPaletteSquares = _this.paletteSquares.length;
         var randomPaletteSquareIndex = Math.floor(Math.random() * numberPaletteSquares);

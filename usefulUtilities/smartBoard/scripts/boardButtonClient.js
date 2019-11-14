@@ -1,13 +1,12 @@
-//
+'use strict';
 //  boardButtonClient.js
 //
-//  Additional code by Milad Nazeri 10/30/2019
+//  Created by Milad Nazeri and Zach Fox 10/30/2019
 //  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
-/* globals Screenshare */
 
 (function(){
     var DEBUG = true;
@@ -34,6 +33,7 @@
     }
 
 
+    // Check to see what the button should display based on if there is an active sharer. 
     var ACTIVE_SCREENSHARE_MODEL_URL = Script.resolvePath("../resources/models/button-stop-screen-share.fbx");
     var INACTIVE_SCREENSHARE_MODEL_URL = Script.resolvePath("../resources/models/button-start-screen-share.fbx");
     function updateModelURL() {
@@ -51,6 +51,8 @@
 
 
     // UI
+    // When the zone client sends who is the current presenter,
+    // call updateModelURL to update the start/stop screenshare button with the new state
     function setActivePresenterUUID(id, args) {
         _this.currentBoardState = args[0];
         _this.activePresenterUUID = args[1];

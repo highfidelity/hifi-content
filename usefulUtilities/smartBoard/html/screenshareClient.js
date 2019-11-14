@@ -1,4 +1,11 @@
-/* global OT API_KEY TOKEN SESSION_ID SAMPLE_SERVER_BASE_URL */
+'use strict';
+//  screenshareClient.js
+//
+//  Created by Milad Nazeri and Zach Fox 10/30/2019
+//  Copyright 2019 High Fidelity, Inc.
+//
+//  Distributed under the Apache License, Version 2.0.
+//  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 // Helpers
 function handleError(error) {

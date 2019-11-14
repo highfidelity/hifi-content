@@ -1,4 +1,4 @@
-//
+'use strict';
 //  drawSphereSpawnerClient.js
 //
 //  created by Rebecca Stankus on 03/28/19

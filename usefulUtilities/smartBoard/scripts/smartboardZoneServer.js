@@ -1,7 +1,7 @@
-//
+'use strict';
 //  smartBoardZoneServer.js
 //
-//  Additional code by Milad Nazeri 10/30/2019
+//  Milad Nazeri and Zach Fox 10/30/2019
 //  Copyright 2019 High Fidelity, Inc.
 //
 //  Distributed under the Apache License, Version 2.0.
@@ -79,6 +79,8 @@
         });
     }
 
+
+    // If screenshare mode is activated, make the screenshare glass around the web entity visible
     function setVisiblityOfSmartboardScreenGlass(){
         if (_this.currentBoardState === "whiteboard") {
             Entities.editEntity(_this.smartboardScreenshareGlass, {visible: false });

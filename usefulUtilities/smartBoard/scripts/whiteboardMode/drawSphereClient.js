@@ -1,4 +1,4 @@
-//
+'use strict';
 //  drawSphereClient.js
 //
 //  Created by Rebecca Stankus 3/28/2019
@@ -9,9 +9,6 @@
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
 (function() {
-    // TODO:
-    // Make anything that says smartboard say smartboard
-    // Change any spelling to be either smartboard or Smartboard anywhere in files or code
     var _this;
 
     var MINIMUM_MOVEMENT_TO_DRAW_M = 0.0005;
