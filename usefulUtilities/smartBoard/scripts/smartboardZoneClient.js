@@ -95,7 +95,7 @@
     var HALF = 2;
     var STATIC_BUTTON_PROPS = {
         type: "Model",
-        script: Script.resolvePath("./boardButtonClient.js?" + Date.now()),
+        script: Script.resolvePath("./boardButtonClient.js"),
         localPosition: {x: 1.5426, y: 1.2593, z: 0.0618},
         dimensions: {x: 1.0394, y: 0.1300, z: 0.0243},
         visible: false
