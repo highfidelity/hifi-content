@@ -42,7 +42,6 @@
                 "receiveBoardState", [_this.currentBoardState, _this.activePresenterUUID]);
         }
         setVisibilityOfSmartboardWhiteboardComponents();
-        setVisiblityOfSmartboardScreenGlass();
     }
 
     // The following Smartboard Whiteboard components should be visible/invisible:
@@ -79,15 +78,6 @@
         });
     }
 
-
-    // If screenshare mode is activated, make the screenshare glass around the web entity visible
-    function setVisiblityOfSmartboardScreenGlass(){
-        if (_this.currentBoardState === "whiteboard") {
-            Entities.editEntity(_this.smartboardScreenshareGlass, {visible: false });
-            return;
-        }
-        Entities.editEntity(_this.smartboardScreenshareGlass, { visible: true });
-    }
 
     // PARTICIPANTS
     // When a client first enters the zone, register them and send them the state of the board

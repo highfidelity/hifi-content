@@ -33,11 +33,13 @@
         if (_this.currentBoardState === "whiteboard") {
             createRandomPaintSphere();
             maybeRemoveLocalPresenterDisplayName();
+            maybeRemoveLocalSmartboardScreenshareGlass();
 
             // This will also delete the local web entity if there is one.
             Screenshare.stopScreenshare();
         } else if (_this.currentBoardState === "screenshare") {
             maybeCreateLocalPresenterDisplayName();
+            maybeCreateLocalSmartboardScreenshareGlass();
 
             if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
                 Screenshare.startScreenshare(_this.entityID, _this.smartboard, true);
@@ -172,7 +174,31 @@
         _this.localPresenterDisplayName = false;
     }
 
+    var DEFAULT_SMARTBOARD_SCREENSHARE_GLASS_PROPS = {
+        type: "Model",
+        modelURL: Script.resolvePath("../resources/models/screen-share-glass.fbx"),
+        localPosition: {x: 0.0, y: -0.0861, z: 0.0311},
+        dimensions: {x: 4.2301, y: 2.4942, z: 0.0025}
+    }
+    function maybeCreateLocalSmartboardScreenshareGlass() {
+        if (_this.localSmartboardScreenshareGlass) {
+            return;
+        }
+        var localSmartboardScreenshareGlassProps = DEFAULT_SMARTBOARD_SCREENSHARE_GLASS_PROPS;
+        localSmartboardScreenshareGlassProps.parentID = _this.smartboard;
+        localSmartboardScreenshareGlassProps.name = "Smarboard Screenshare Glass";
+
+        _this.localSmartboardScreenshareGlass = Entities.addEntity(localSmartboardScreenshareGlassProps, "local");
+
+    }
     
+    function maybeRemoveLocalSmartboardScreenshareGlass() {
+        if (this.localSmartboardScreenshareGlass) {
+            Entities.deleteEntity(_this.localSmartboardScreenshareGlass);
+        }
+        _this.localSmartboardScreenshareGlass = false;
+    }
+
     // If there is a problem with screenshare, then update the board back to whiteboard mode
     function onScreenshareError() {
         if (DEBUG) {
@@ -219,9 +245,6 @@
             var name = Entities.getEntityProperties(smartboardPiece, 'name').name;
             if (name === "Smartboard Palette Square") {
                 _this.paletteSquares.push(smartboardPiece);
-            }
-            if (name === "Smartboard Screenshare Glass") {
-                _this.smartboardScreenshareGlass = smartboardPiece;
             }
         });
 
@@ -296,6 +319,8 @@
         Screenshare.stopScreenshare();
         maybeRemoveLocalScreenshareButton();
         maybeRemoveLocalPresenterDisplayName();
+        maybeRemoveLocalSmartboardScreenshareGlass();
+
         if (signalsConnected) {
             Screenshare.screenshareError.disconnect(onScreenshareError);
             Screenshare.screenshareProcessTerminated.disconnect(onScreenshareProcessTerminated);
@@ -317,7 +342,7 @@
         this.whiteboardOnlyZone = false;
         this.smartboard;
         this.smartboardChildrenIDs;
-        this.smartboardScreenshareGlass;
+        this.localSmartboardScreenshareGlass;
         this.paletteSquares = [];
         this.projectAPIKey = "";
         this.token = "";
