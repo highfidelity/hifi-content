@@ -174,7 +174,6 @@
             signalsConnected = true;
         }
 
-        // TODO: Make sure the actual icon name matches whatever name we try to find it here
         var smartboardChildrenIDS = Entities.getChildrenIDs(_this.smartboard);
         for (var i = 0; i < smartboardChildrenIDS.length; i++) {
             var childID = smartboardChildrenIDS[i];

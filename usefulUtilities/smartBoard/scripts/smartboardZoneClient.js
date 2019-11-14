@@ -140,6 +140,7 @@
     };
     var LINE_HEIGHT = 0.1;
     var PRESENTER_TEXT_DELAY_MS = 100;
+    var TEXT_SIZE_WIDTH_BUFFER = 1.15; // textsize calculation from engine is slightly off
     function maybeCreateLocalPresenterDisplayName() {
         if (_this.localPresenterDisplayName) {
             return;
@@ -156,7 +157,7 @@
 
         Script.setTimeout(function(){
             var textSize = Entities.textSize(_this.localPresenterDisplayName, textProps.text);
-            textProps.dimensions.x = textSize.width * 1.15;
+            textProps.dimensions.x = textSize.width * TEXT_SIZE_WIDTH_BUFFER;
             var newProps = { 
                 dimensions: textProps.dimensions,
                 visible: true
