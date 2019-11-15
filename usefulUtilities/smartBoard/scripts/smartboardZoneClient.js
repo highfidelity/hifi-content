@@ -98,7 +98,10 @@
         script: Script.resolvePath("./boardButtonClient.js"),
         localPosition: {x: 1.5426, y: 1.2593, z: 0.0618},
         dimensions: {x: 1.0394, y: 0.1300, z: 0.0243},
-        visible: false
+        visible: false,
+        grab: {
+            grabbable: false
+        }
     };
     function setupLocalButton() {
         if (_this.screenshareStartStopButtonID) {
@@ -136,7 +139,10 @@
     var DEFAULT_TEXTBOX_PROPS = {
         type: "Text",
         name: "Smartboard Presenting Text",
-        backgroundAlpha: 0.0
+        backgroundAlpha: 0.0,
+        grab: {
+            grabbable: false
+        }
     };
     var LINE_HEIGHT = 0.1;
     var PRESENTER_TEXT_DELAY_MS = 100;
@@ -179,7 +185,10 @@
         type: "Model",
         modelURL: Script.resolvePath("../resources/models/screen-share-glass.fbx"),
         localPosition: {x: 0.0, y: -0.0861, z: 0.0311},
-        dimensions: {x: 4.2301, y: 2.4942, z: 0.0025}
+        dimensions: {x: 4.2301, y: 2.4942, z: 0.0025},
+        grab: {
+            grabbable: false
+        }
     }
     function maybeCreateLocalSmartboardScreenshareGlass() {
         if (_this.localSmartboardScreenshareGlass) {
