@@ -34,7 +34,7 @@
 
     var HALF = 0.5;
 
-    var DEBUG = true;
+    var DEBUG = false;
     var DEFAULT_STROKE_WIDTH = 0.015;
     var MAX_LINE_POINTS = 100;
     var DEFAULT_LINE_PROPERTIES = {

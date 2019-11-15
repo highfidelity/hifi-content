@@ -9,7 +9,7 @@
 
 
 (function() {
-    var DEBUG = true;
+    var DEBUG = false;
  
     // BOARD UI
     // send a message to all registered clients on the state of the board

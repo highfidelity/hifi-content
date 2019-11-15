@@ -10,7 +10,7 @@
 /* globals Screenshare */
 
 (function() {
-    var DEBUG = true;
+    var DEBUG = false;
 
     // BOARD UI
     // If a new avatar enters the Smartboard Zone:

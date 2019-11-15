@@ -9,7 +9,7 @@
 //
 (function() {
     var _this;
-    var DEBUG = true;
+    var DEBUG = false;
 
     var RGB_MAX_VALUE = 255;
     var DECIMAL_PLACES = 2;
