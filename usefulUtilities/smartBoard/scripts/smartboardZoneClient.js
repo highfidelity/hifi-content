@@ -215,7 +215,9 @@
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `onScreenshareError()`.");
         }
         
-        Entities.callEntityServerMethod(_this.entityID, "updateCurrentBoardState", ["whiteboard", ""]);
+        // We pass `MyAvatar.sessionUUID` because the server needs to check if the user trying to update the current board
+        // state is allowed to do that.
+        Entities.callEntityServerMethod(_this.entityID, "updateCurrentBoardState", ["whiteboard", MyAvatar.sessionUUID]);
     }
 
 
@@ -225,7 +227,9 @@
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `onScreenshareProcessTerminated()`.");
         }
         
-        Entities.callEntityServerMethod(_this.entityID, "updateCurrentBoardState", ["whiteboard", ""]);
+        // We pass `MyAvatar.sessionUUID` because the server needs to check if the user trying to update the current board
+        // state is allowed to do that.
+        Entities.callEntityServerMethod(_this.entityID, "updateCurrentBoardState", ["whiteboard", MyAvatar.sessionUUID]);
     }
 
 
