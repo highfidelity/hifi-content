@@ -16,13 +16,16 @@
     var WHITEBOARD_STATUS_ICON = Script.resolvePath("../resources/models/button-state-whiteboard.fbx");
     var SCREENSHARE_STATUS_ICON = Script.resolvePath("../resources/models/button-state-screen-share.fbx");
     function updateCurrentBoardState(id, args) {
+        // If there's an active presenter, only the active presenter can update the current board state.
+        if (_this.activePresenterUUID !== "" && _this.activePresenterUUID !== args[1]) {
+            return;
+        }
+
         _this.currentBoardState = args[0];
         _this.activePresenterUUID = args[1];
 
-        // The caller should do this for us, but just to make sure...
-        if (_this.currentBoardState === "screenshare" && !_this.activePresenterUUID) {
-            console.log("smartBoardZoneServer.js: " + _this.entityID + ": `updateCurrentBoardState()`." +
-                "Board state was updated to whiteboard, but `activePresenterUUID` was not empty!");
+        // Reset the active presenter UUID if the new current board state is "whiteboard".
+        if (_this.currentBoardState === "whiteboard") {
             _this.activePresenterUUID = "";
         }
 
@@ -123,8 +126,8 @@
                         "The removed participant was the active presenter. Updating current board state to 'smartboard'...");
                 }
 
-                _this.activePresenterUUID = "";
-                updateCurrentBoardState(_this.entityID, ["whiteboard", ""]);
+                // `updateCurrentBoardState()` will reset `_this.activePresenterUUID` to "".
+                updateCurrentBoardState(_this.entityID, ["whiteboard", _this.activePresenterUUID]);
             }
         }
     }
