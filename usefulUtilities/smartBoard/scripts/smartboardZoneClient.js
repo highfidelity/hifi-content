@@ -203,7 +203,7 @@
     }
     
     function maybeRemoveLocalSmartboardScreenshareGlass() {
-        if (this.localSmartboardScreenshareGlass) {
+        if (_this.localSmartboardScreenshareGlass) {
             Entities.deleteEntity(_this.localSmartboardScreenshareGlass);
         }
         _this.localSmartboardScreenshareGlass = false;
