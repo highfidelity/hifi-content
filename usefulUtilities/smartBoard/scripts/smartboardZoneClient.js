@@ -28,9 +28,12 @@
             console.log("args:", args, "\nsmartboardZoneClient.js: " + _this.entityID + ": `receiveBoardState()`." +
                 "\n`_this.currentBoardState`: " + _this.currentBoardState +
                 "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
-        }        
+        }
+
+        maybeRemoveLocalScreenshareButton();
 
         if (_this.currentBoardState === "whiteboard") {
+            setupLocalButton();
             createRandomPaintSphere();
             maybeRemoveLocalPresenterDisplayName();
             maybeRemoveLocalSmartboardScreenshareGlass();
@@ -42,9 +45,9 @@
             maybeCreateLocalSmartboardScreenshareGlass();
 
             if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
+                setupLocalButton();
                 Screenshare.startScreenshare(_this.entityID, _this.smartboard, true);
             } else {
-                maybeRemoveLocalScreenshareButton();
                 Screenshare.startScreenshare(_this.entityID, _this.smartboard, false);
             }
             maybeRemovePaintSpheres();
@@ -52,7 +55,6 @@
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `receiveBoardState()`." + " Unhandled state.");
         }
 
-        setupLocalButton();
         setButtonActivePresenterUUID();
     }
 
@@ -278,6 +280,10 @@
 
     // Make sure an avatar has a paint sphere when they enter the zone
     function createRandomPaintSphere() {
+        if (DEBUG) {
+            console.log("smartboardZoneClient.js: " + _this.entityID +
+                ": `createRandomPaintSphere()`. Making a random paintsphere...");
+        }
         var numberPaletteSquares = _this.paletteSquares.length;
         var randomPaletteSquareIndex = Math.floor(Math.random() * numberPaletteSquares);
 
