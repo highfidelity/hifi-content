@@ -48,6 +48,10 @@
         attach paint sphere to. Create a paint sphere using the color of this square that was clicked. Attach a material 
         to the sphere using a texture found inthe userData of this square. */
         createPaintSphere: function() {
+            if (DEBUG) {
+                console.log("drawSphereSpawnerClient.js: " + _this.entityID +
+                    ": `createPaintSphere()`. createPaintSphere...");
+            }
             _this.removePaintSpheres();
             dominantHand = MyAvatar.getDominantHand();
             dominantHandJoint = (dominantHand === "right") ? "RightHand" : "LeftHand";

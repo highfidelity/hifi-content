@@ -297,7 +297,7 @@
             if (smartboardIntersectionData.intersects) {
                 var intersectedSmartboardPartName = Entities.getEntityProperties(smartboardIntersectionData.entityID, 
                     'name').name;
-                if (intersectedSmartboardPartName !== "Smartboard Screenshare Glass") {
+                if (intersectedSmartboardPartName !== "Smartboard") {
                     if (drawingInDesktop) {
                         _this.stopDrawing();
                     }

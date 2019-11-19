@@ -9,7 +9,7 @@
 
 
 (function(){
-    var DEBUG = false;
+    var DEBUG = true;
 
     // ENTITY SIGNALS
     function preload(entityID) {
