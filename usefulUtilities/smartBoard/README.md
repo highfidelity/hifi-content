@@ -19,3 +19,8 @@ The three main script files for the Smartboard's Screen Share mode are:
 # Release Notes
 ## v1.0 :: [commit 84a142fb](https://github.com/highfidelity/hifi-content/commits/84a142fb)
 - Initial Release
+
+## v1.1 :: [commit 5c3d02d](https://github.com/highfidelity/hifi-content/commits/5c3d02d)
+- Update local button logic for visibility
+- Update hardcoded values
+- Truncate display names

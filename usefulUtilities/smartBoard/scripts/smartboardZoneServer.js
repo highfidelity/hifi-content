@@ -188,7 +188,6 @@
         }
     }
 
-
     // update the board back to whiteboard only
     // might be unnessary, but maybe help clear left over local entities
     function unload() {

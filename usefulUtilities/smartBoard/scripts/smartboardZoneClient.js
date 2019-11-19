@@ -28,9 +28,12 @@
             console.log("args:", args, "\nsmartboardZoneClient.js: " + _this.entityID + ": `receiveBoardState()`." +
                 "\n`_this.currentBoardState`: " + _this.currentBoardState +
                 "\n`_this.activePresenterUUID`: " + _this.activePresenterUUID);
-        }        
+        }
+
+        maybeRemoveLocalScreenshareButton();
 
         if (_this.currentBoardState === "whiteboard") {
+            setupLocalButton();
             createRandomPaintSphere();
             maybeRemoveLocalPresenterDisplayName();
             maybeRemoveLocalSmartboardScreenshareGlass();
@@ -42,9 +45,9 @@
             maybeCreateLocalSmartboardScreenshareGlass();
 
             if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
+                setupLocalButton();
                 Screenshare.startScreenshare(_this.entityID, _this.smartboard, true);
             } else {
-                maybeRemoveLocalScreenshareButton();
                 Screenshare.startScreenshare(_this.entityID, _this.smartboard, false);
             }
             maybeRemovePaintSpheres();
@@ -52,7 +55,6 @@
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `receiveBoardState()`." + " Unhandled state.");
         }
 
-        setupLocalButton();
         setButtonActivePresenterUUID();
     }
 
@@ -96,8 +98,8 @@
     var STATIC_BUTTON_PROPS = {
         type: "Model",
         script: Script.resolvePath("./boardButtonClient.js"),
-        localPosition: {x: 1.5426, y: 1.2593, z: 0.0618},
-        dimensions: {x: 1.0394, y: 0.1300, z: 0.0243},
+        localPosition: {x: 1.2814, y: 1.1614, z: 0.0837},
+        dimensions: {x: 0.9985, y: 0.1249, z: 0.0234},
         visible: false,
         grab: {
             grabbable: false
@@ -147,16 +149,22 @@
     var LINE_HEIGHT = 0.1;
     var PRESENTER_TEXT_DELAY_MS = 100;
     var TEXT_SIZE_WIDTH_BUFFER = 1.15; // textsize calculation from engine is slightly off
+    // Empirical value at the moment.  May adjust when moving to dynamic scaling.
+    var MAXIMUM_NAME_LENGTH_ALLOWED = 17;
+    var REPLACEMENT_TEXT = "...";
     function maybeCreateLocalPresenterDisplayName() {
         if (_this.localPresenterDisplayName) {
             return;
         }
         var textProps = DEFAULT_TEXTBOX_PROPS;
         var displayName = AvatarManager.getAvatar(_this.activePresenterUUID).displayName; 
+        displayName = displayName.length > MAXIMUM_NAME_LENGTH_ALLOWED 
+            ? displayName.substring(0, MAXIMUM_NAME_LENGTH_ALLOWED) + REPLACEMENT_TEXT
+            : displayName;
 
         textProps.parentID = _this.smartboard;
         textProps.dimensions = {x: 0, y: LINE_HEIGHT, z: 0.1009};
-        textProps.localPosition = {x: 0, y: 1.2563, z: entityOffsetFromBoard + margin};
+        textProps.localPosition = {x: 0, y: 1.1563, z: entityOffsetFromBoard + margin};
         textProps.text = displayName + " is presenting";
         textProps.visible = false;
         _this.localPresenterDisplayName = Entities.addEntity(textProps, "local");
@@ -184,8 +192,8 @@
     var DEFAULT_SMARTBOARD_SCREENSHARE_GLASS_PROPS = {
         type: "Model",
         modelURL: Script.resolvePath("../resources/models/screen-share-glass.fbx"),
-        localPosition: {x: 0.0, y: -0.0861, z: 0.0311},
-        dimensions: {x: 4.2301, y: 2.4942, z: 0.0025},
+        localPosition: {x: 0.0, y: -0.0748, z: 0.0771},
+        dimensions: {x: 3.8642, y: 2.2785, z: 0.0023},
         grab: {
             grabbable: false
         }
@@ -278,6 +286,10 @@
 
     // Make sure an avatar has a paint sphere when they enter the zone
     function createRandomPaintSphere() {
+        if (DEBUG) {
+            console.log("smartboardZoneClient.js: " + _this.entityID +
+                ": `createRandomPaintSphere()`. Making a random paintsphere...");
+        }
         var numberPaletteSquares = _this.paletteSquares.length;
         var randomPaletteSquareIndex = Math.floor(Math.random() * numberPaletteSquares);
 
