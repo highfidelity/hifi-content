@@ -149,6 +149,7 @@
     var LINE_HEIGHT = 0.1;
     var PRESENTER_TEXT_DELAY_MS = 100;
     var TEXT_SIZE_WIDTH_BUFFER = 1.15; // textsize calculation from engine is slightly off
+    // Empirical value at the moment.  May adjust when moving to dynamic scaling.
     var MAXIMUM_NAME_LENGTH_ALLOWED = 17;
     var REPLACEMENT_TEXT = "...";
     function maybeCreateLocalPresenterDisplayName() {
