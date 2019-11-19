@@ -7,8 +7,9 @@
 //  Distributed under the Apache License, Version 2.0.
 //  See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
 
+/* globals Screenshare */
 
-(function(){
+(function() {
     var DEBUG = false;
 
     // ENTITY SIGNALS
@@ -81,8 +82,12 @@
             return;
         }
         var newState = _this.currentBoardState === "screenshare" ? "whiteboard": "screenshare";
-        Entities.callEntityServerMethod(_this.screenshareZoneID,
-            "updateCurrentBoardState", [newState, MyAvatar.sessionUUID]);
+        if (newState === "whiteboard") {
+            Screenshare.stopScreenshare();
+        } else {
+            Entities.callEntityServerMethod(_this.screenshareZoneID,
+                "updateCurrentBoardState", [newState, MyAvatar.sessionUUID]);
+        }
     }
 
 

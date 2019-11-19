@@ -24,3 +24,6 @@ The three main script files for the Smartboard's Screen Share mode are:
 - Update local button logic for visibility
 - Update hardcoded values
 - Truncate display names
+
+## v1.2 :: 
+- Updated button logic to handle stopping the screenshare directly
