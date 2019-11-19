@@ -30,7 +30,6 @@
         }
 
         var smartboardStatusIcon = _this.currentBoardState === "screenshare" ? SCREENSHARE_STATUS_ICON : WHITEBOARD_STATUS_ICON;
-        console.log("SMARTBOARDSTATUSICON:", smartboardStatusIcon);
         Entities.editEntity(_this.smartboardStatusIconID, {modelURL: smartboardStatusIcon});
         
         if (DEBUG) {
@@ -182,16 +181,13 @@
         for (var i = 0; i < smartboardChildrenIDS.length; i++) {
             var childID = smartboardChildrenIDS[i];
             var name = Entities.getEntityProperties(childID, "name").name;
-            console.log("name", name)
             if (name === "Smartboard Status Icon") {
-                console.log("name:", name)
                 _this.smartboardStatusIconID = childID;
                 break;
             }
         }
     }
 
-    console.log('TEST')
     // update the board back to whiteboard only
     // might be unnessary, but maybe help clear left over local entities
     function unload() {

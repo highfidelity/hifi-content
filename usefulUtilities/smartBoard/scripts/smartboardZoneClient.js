@@ -10,7 +10,7 @@
 /* globals Screenshare */
 
 (function() {
-    var DEBUG = true;
+    var DEBUG = false;
 
     // BOARD UI
     // If a new avatar enters the Smartboard Zone:
@@ -97,7 +97,7 @@
     var HALF = 2;
     var STATIC_BUTTON_PROPS = {
         type: "Model",
-        script: Script.resolvePath("./boardButtonClient.js?" + Date.now()),
+        script: Script.resolvePath("./boardButtonClient.js"),
         localPosition: {x: 1.2814, y: 1.1614, z: 0.0837},
         dimensions: {x: 0.9985, y: 0.1249, z: 0.0234},
         visible: false,
@@ -191,7 +191,6 @@
     var DEFAULT_SMARTBOARD_SCREENSHARE_GLASS_PROPS = {
         type: "Model",
         modelURL: Script.resolvePath("../resources/models/screen-share-glass.fbx"),
-        // TODO:
         localPosition: {x: 0.0, y: -0.0748, z: 0.0771},
         dimensions: {x: 3.8642, y: 2.2785, z: 0.0023},
         grab: {
