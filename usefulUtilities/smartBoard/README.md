@@ -28,5 +28,5 @@ The three main script files for the Smartboard's Screen Share mode are:
 ## v1.2 :: [commit efea56a](https://github.com/highfidelity/hifi-content/commits/efea56a)
 - Updated button logic to handle stopping the screenshare directly
 
-## v1.3 :: [commit dda4ecd](https://github.com/highfidelity/hifi-content/commits/dda4ecd)
+## v1.3 :: [commit 9444d21](https://github.com/highfidelity/hifi-content/commits/9444d21)
 - Added logic to harden against out-of-order entity and script loading.
