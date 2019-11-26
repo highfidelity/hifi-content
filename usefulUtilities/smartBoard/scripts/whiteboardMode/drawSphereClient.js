@@ -15,7 +15,12 @@
     var MAXIMUM_MOVEMENT_TO_DRAW_M = 0.1;
     var MAXIMUM_DISTANCE_TO_SEARCH_M = 1;
     var MAXIMUM_DISTANCE_TO_DELETE_M = 0.03;
-    var STROKE_FORWARD_OFFSET_M;
+    // Empirically determined. The following four values are closely linked:
+    // 1. The z-offset of whiteboard polylines (`STROKE_FORWARD_OFFSET_M` in `drawSphereClient.js`).
+    // 2. The z-offset of the screenshare local web entity (`LOCAL_WEB_ENTITY_Z_OFFSET` in `smartboardZoneClient.js`).
+    // 3. The z-offset of the screenshare "glass bezel" (`DEFAULT_SMARTBOARD_SCREENSHARE_GLASS_PROPS` in `smartboardZoneClient.js`).
+    // 4. The z-offset of the screenshare "status icon" (handled in the screenshare JSON file).
+    var STROKE_FORWARD_OFFSET_M = 0.0275;
 
     var WAIT_TO_CLEAN_UP_MS = 2000;
     var WAIT_FOR_ENTITIES_TO_LOAD_MS = 300;
@@ -149,8 +154,6 @@
             _this.colorPaletteID = parsedUserData.colorPaletteID;
             _this.smartboard = Entities.getEntityProperties(_this.colorPaletteID, 'parentID').parentID;
             _this.smartboardParts = Entities.getChildrenIDs(_this.smartboard);
-            var MARGIN = 0.012;
-            STROKE_FORWARD_OFFSET_M = Entities.getEntityProperties(_this.colorPaletteID, 'dimensions').dimensions.z / 2 + MARGIN;
             _this.smartboardParts.forEach(function(smartboardPart) {
                 var name = Entities.getEntityProperties(smartboardPart, 'name').name;
                 if (name === "Smartboard Zone") {
