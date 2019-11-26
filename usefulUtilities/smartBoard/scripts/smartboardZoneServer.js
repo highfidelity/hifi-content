@@ -30,7 +30,14 @@
         }
 
         var smartboardStatusIcon = _this.currentBoardState === "screenshare" ? SCREENSHARE_STATUS_ICON : WHITEBOARD_STATUS_ICON;
-        Entities.editEntity(_this.smartboardStatusIconID, {modelURL: smartboardStatusIcon});
+        if (!_this.smartboardStatusIconID) {
+            getSmartboardStatusIconID();
+        }
+        if (_this.smartboardStatusIconID) {
+            Entities.editEntity(_this.smartboardStatusIconID, {modelURL: smartboardStatusIcon});
+        } else {
+            console.log("smartBoardZoneServer.js: " + _this.entityID + ": `smartboardStatusIconID` not set. Status icon won't change.");
+        }
         
         if (DEBUG) {
             console.log("args:", args, "smartBoardZoneServer.js: " + _this.entityID + ": `updateCurrentBoardState()`." +
@@ -54,6 +61,15 @@
     // 4. Whiteboard polylines
     var HIDE_POLYLINES_IN_SCREENSHARE_MODE = false;
     function setVisibilityOfSmartboardWhiteboardComponents() {
+        if (!_this.smartboard) {
+            getSmartboardID();
+        }
+
+        if (!_this.smartboard) {
+            console.log("smartBoardZoneServer.js: " + _this.entityID + ": `smartboard` not set. Whiteboard component visibility won't change.");
+            return;
+        }
+        
         var smartboardChildrenIDs = Entities.getChildrenIDs(_this.smartboard);
         var entityNamesToShowOrHide = ["reset", "palette", "erase"];
         if (HIDE_POLYLINES_IN_SCREENSHARE_MODE) {
@@ -146,6 +162,25 @@
     }
 
 
+    function getSmartboardID() {
+        var props = Entities.getEntityProperties(_this.entityID, ["parentID"]);
+        _this.smartboard = props.parentID;
+    }
+
+
+    function getSmartboardStatusIconID() {
+        var smartboardChildrenIDS = Entities.getChildrenIDs(_this.smartboard);
+        for (var i = 0; i < smartboardChildrenIDS.length; i++) {
+            var childID = smartboardChildrenIDS[i];
+            var name = Entities.getEntityProperties(childID, "name").name;
+            if (name === "Smartboard Status Icon") {
+                _this.smartboardStatusIconID = childID;
+                break;
+            }
+        }
+    }
+
+
     // ENTITY SIGNALS
     // check to see if this is a whiteboardOnly zone
     // connect the avatar removed event
@@ -157,9 +192,10 @@
             console.log("smartBoardZoneServer.js: " + _this.entityID + ": `preload()`.");
         }
 
-        var props = Entities.getEntityProperties(entityID, ["userData", "parentID"]);
+        getSmartboardID();
+
+        var props = Entities.getEntityProperties(entityID, ["userData"]);
         var userData = props.userData;
-        _this.smartboard = props.parentID;
         var parsedData = {};
         try {
             parsedData = JSON.parse(userData);
@@ -177,15 +213,7 @@
             signalsConnected = true;
         }
 
-        var smartboardChildrenIDS = Entities.getChildrenIDs(_this.smartboard);
-        for (var i = 0; i < smartboardChildrenIDS.length; i++) {
-            var childID = smartboardChildrenIDS[i];
-            var name = Entities.getEntityProperties(childID, "name").name;
-            if (name === "Smartboard Status Icon") {
-                _this.smartboardStatusIconID = childID;
-                break;
-            }
-        }
+        getSmartboardStatusIconID();
     }
 
     // update the board back to whiteboard only

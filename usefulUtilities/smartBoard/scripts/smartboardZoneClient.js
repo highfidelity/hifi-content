@@ -62,8 +62,12 @@
     // Updates the state of the local entity buttons.
     // Send the `activePresenterUUID` (even if it's empty) - that helps the buttons know who can change the Smartboard's state.
     function setButtonActivePresenterUUID() {
-        if (!buttonIsReady || !_this.screenshareStartStopButtonID) {
+        if (!buttonIsReady) {
             return;
+        }
+
+        if (!_this.screenshareStartStopButtonID) {
+            setupLocalButton();
         }
 
         if (DEBUG) {
@@ -85,7 +89,6 @@
 
         buttonIsReady = true;
         setButtonActivePresenterUUID();
-
     }
 
 
@@ -112,6 +115,15 @@
 
         if (DEBUG) {
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `setupLocalButton()`.");
+        }
+
+        if (!_this.smartboard) {
+            _this.smartboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
+        }
+
+        if (!_this.smartboard) {
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": Couldn't get smartboard ID. Can't setup local start/stop button.");
+            return;
         }
         
         if (!_this.whiteBoardOnlyZone) {
@@ -156,6 +168,16 @@
         if (_this.localPresenterDisplayName) {
             return;
         }
+
+        if (!_this.smartboard) {
+            _this.smartboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
+        }
+
+        if (!_this.smartboard) {
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": Couldn't get smartboard ID. Can't create presenter display name.");
+            return;
+        }
+
         var textProps = DEFAULT_TEXTBOX_PROPS;
         var displayName = AvatarManager.getAvatar(_this.activePresenterUUID).displayName; 
         displayName = displayName.length > MAXIMUM_NAME_LENGTH_ALLOWED 
@@ -169,7 +191,7 @@
         textProps.visible = false;
         _this.localPresenterDisplayName = Entities.addEntity(textProps, "local");
 
-        Script.setTimeout(function(){
+        Script.setTimeout(function() {
             var textSize = Entities.textSize(_this.localPresenterDisplayName, textProps.text);
             textProps.dimensions.x = textSize.width * TEXT_SIZE_WIDTH_BUFFER;
             var newProps = { 
@@ -202,9 +224,19 @@
         if (_this.localSmartboardScreenshareGlass) {
             return;
         }
+
+        if (!_this.smartboard) {
+            _this.smartboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
+        }
+
+        if (!_this.smartboard) {
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": Couldn't get smartboard ID. Can't create smartboard screenshare glass.");
+            return;
+        }
+
         var localSmartboardScreenshareGlassProps = DEFAULT_SMARTBOARD_SCREENSHARE_GLASS_PROPS;
         localSmartboardScreenshareGlassProps.parentID = _this.smartboard;
-        localSmartboardScreenshareGlassProps.name = "Smarboard Screenshare Glass";
+        localSmartboardScreenshareGlassProps.name = "Smartboard Screenshare Glass";
 
         _this.localSmartboardScreenshareGlass = Entities.addEntity(localSmartboardScreenshareGlassProps, "local");
 
@@ -241,6 +273,19 @@
     }
 
 
+    function getPaletteSquares() {
+        _this.paletteSquares = [];
+        _this.smartboardChildrenIDs = Entities.getChildrenIDs(_this.smartboard);
+        _this.smartboardChildrenIDs.forEach(function(smartboardPiece) {
+            MyAvatar.disableHandTouchForID(smartboardPiece);
+            var name = Entities.getEntityProperties(smartboardPiece, 'name').name;
+            if (name === "Smartboard Palette Square") {
+                _this.paletteSquares.push(smartboardPiece);
+            }
+        });
+    }
+
+
     // ENTITY SIGNALS
     // 1. get the smartboard parent, the dimensions/position of the board for button and web entity positioning
     // 2. get the setup information: whether this is a whiteboard only zone
@@ -258,17 +303,9 @@
         boardDimensions = boardProps.dimensions;
         entityOffsetFromBoard = boardDimensions.z / HALF + margin;
 
-        _this.smartboardChildrenIDs = Entities.getChildrenIDs(_this.smartboard);
-
         MyAvatar.disableHandTouchForID(_this.smartboard);
 
-        _this.smartboardChildrenIDs.forEach(function(smartboardPiece) {
-            MyAvatar.disableHandTouchForID(smartboardPiece);
-            var name = Entities.getEntityProperties(smartboardPiece, 'name').name;
-            if (name === "Smartboard Palette Square") {
-                _this.paletteSquares.push(smartboardPiece);
-            }
-        });
+        getPaletteSquares();
 
         var userData = Entities.getEntityProperties(entityID, ['userData']).userData;
         var parsedData = {};
@@ -291,6 +328,16 @@
                 ": `createRandomPaintSphere()`. Making a random paintsphere...");
         }
         var numberPaletteSquares = _this.paletteSquares.length;
+
+        if (numberPaletteSquares === 0) {
+            getPaletteSquares();
+        }
+
+        if (numberPaletteSquares === 0) {
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": Couldn't get palette squares.");
+            return;
+        }
+
         var randomPaletteSquareIndex = Math.floor(Math.random() * numberPaletteSquares);
 
         Entities.callEntityMethod(_this.paletteSquares[randomPaletteSquareIndex], 'createPaintSphere');
@@ -370,9 +417,6 @@
         this.smartboardChildrenIDs;
         this.localSmartboardScreenshareGlass;
         this.paletteSquares = [];
-        this.projectAPIKey = "";
-        this.token = "";
-        this.sessionID = "";
 
         this.remotelyCallable = [
             'receiveBoardState',

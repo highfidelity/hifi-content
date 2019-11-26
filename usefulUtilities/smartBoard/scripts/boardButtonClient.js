@@ -12,22 +12,35 @@
 (function() {
     var DEBUG = false;
 
-    // ENTITY SIGNALS
-    function preload(entityID) {
-        if (DEBUG) {
-            console.log("boardButtonClient.js: " + entityID + ": `preload()`.");
-        }
-        _this.entityID = entityID;
-        var props = Entities.getEntityProperties(entityID, ["parentID"]);
-
+    function getScreenshareZoneID() {
+        var props = Entities.getEntityProperties(_this.entityID, ["parentID"]);
         var children = Entities.getChildrenIDs(props.parentID);
-        
         for (var i = 0; i < children.length; i++) {
             var name = Entities.getEntityProperties(children[i], 'name').name;
             if (name && name === "Smartboard Zone") {
                 _this.screenshareZoneID = children[i];
                 break;
             }
+        }
+    }
+
+
+    // ENTITY SIGNALS
+    var MAX_SCREENSHARE_ZONE_ID_RETRIES = 10;
+    function preload(entityID) {
+        if (DEBUG) {
+            console.log("boardButtonClient.js: " + entityID + ": `preload()`.");
+        }
+        _this.entityID = entityID;
+
+        var screenshareZoneIDRetries = 0;
+        while (!_this.screenshareZoneID) {
+            if (screenshareZoneIDRetries >= MAX_SCREENSHARE_ZONE_ID_RETRIES) {
+                console.log("boardButtonClient.js: " + _this.entityID + "Couldn't get Screenshare Zone ID. Screenshare won't function.");
+                return;
+            }
+            getScreenshareZoneID();
+            screenshareZoneIDRetries++;
         }
         
         Entities.callEntityMethod(_this.screenshareZoneID, "buttonPreloadComplete");
@@ -85,6 +98,16 @@
         if (newState === "whiteboard") {
             Screenshare.stopScreenshare();
         } else {
+            if (!_this.screenshareZoneID) {
+                getScreenshareZoneID();
+            }
+
+            if (!_this.screenshareZoneID) {
+                console.log("boardButtonClient.js: " + _this.entityID + ": `mousePressOnEntity()`." +
+                    "\nCouldn't get `screenshareZoneID`. Screenshare will not function. Please try clicking again.");
+                    return;
+            }
+
             Entities.callEntityServerMethod(_this.screenshareZoneID,
                 "updateCurrentBoardState", [newState, MyAvatar.sessionUUID]);
         }
