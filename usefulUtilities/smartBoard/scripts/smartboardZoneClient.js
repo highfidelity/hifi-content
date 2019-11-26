@@ -31,26 +31,19 @@
         }
 
         maybeRemoveLocalScreenshareButton();
+        maybeAddLocalButton();
 
         if (_this.currentBoardState === "whiteboard") {
-            setupLocalButton();
             createRandomPaintSphere();
             maybeRemoveLocalPresenterDisplayName();
             maybeRemoveLocalSmartboardScreenshareGlass();
-
             // This will also delete the local web entity if there is one.
             Screenshare.stopScreenshare();
         } else if (_this.currentBoardState === "screenshare") {
             maybeCreateLocalPresenterDisplayName();
             maybeCreateLocalSmartboardScreenshareGlass();
-
-            if (_this.activePresenterUUID === MyAvatar.sessionUUID) {
-                setupLocalButton();
-                Screenshare.startScreenshare(_this.entityID, _this.smartboard, true);
-            } else {
-                Screenshare.startScreenshare(_this.entityID, _this.smartboard, false);
-            }
             maybeRemovePaintSpheres();
+            Screenshare.startScreenshare(_this.entityID, _this.smartboard, _this.activePresenterUUID === MyAvatar.sessionUUID);
         } else {
             console.log("smartboardZoneClient.js: " + _this.entityID + ": `receiveBoardState()`." + " Unhandled state.");
         }
@@ -62,12 +55,8 @@
     // Updates the state of the local entity buttons.
     // Send the `activePresenterUUID` (even if it's empty) - that helps the buttons know who can change the Smartboard's state.
     function setButtonActivePresenterUUID() {
-        if (!buttonIsReady) {
+        if (!buttonIsReady || !_this.screenshareStartStopButtonID) {
             return;
-        }
-
-        if (!_this.screenshareStartStopButtonID) {
-            setupLocalButton();
         }
 
         if (DEBUG) {
@@ -108,13 +97,14 @@
             grabbable: false
         }
     };
-    function setupLocalButton() {
-        if (_this.screenshareStartStopButtonID) {
+    function maybeAddLocalButton() {
+        if ((_this.currentBoardState === "screenshare" && _this.activePresenterUUID !== MyAvatar.sessionUUID)
+            || _this.screenshareStartStopButtonID) {
             return;
         }
 
         if (DEBUG) {
-            console.log("smartboardZoneClient.js: " + _this.entityID + ": `setupLocalButton()`.");
+            console.log("smartboardZoneClient.js: " + _this.entityID + ": `maybeAddLocalButton()`.");
         }
 
         if (!_this.smartboard) {
@@ -143,8 +133,8 @@
 
         if (_this.screenshareStartStopButtonID) {
             Entities.deleteEntity(_this.screenshareStartStopButtonID);
-            _this.screenshareStartStopButtonID = null;
         }
+        _this.screenshareStartStopButtonID = null;
     }
 
 
