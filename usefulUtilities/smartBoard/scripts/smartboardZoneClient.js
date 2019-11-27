@@ -204,7 +204,7 @@
     var DEFAULT_SMARTBOARD_SCREENSHARE_GLASS_PROPS = {
         type: "Model",
         modelURL: Script.resolvePath("../resources/models/screen-share-glass.fbx"),
-        localPosition: {x: 0.0, y: -0.0748, z: 0.0771},
+        localPosition: {x: 0.0, y: -0.0748, z: 0.0475},
         dimensions: {x: 3.8642, y: 2.2785, z: 0.0023},
         grab: {
             grabbable: false
@@ -281,6 +281,12 @@
     // 2. get the setup information: whether this is a whiteboard only zone
     var signalsConnected = false;
     var boardDimensions;
+    // Empirically determined. The following four values are closely linked:
+    // 1. The z-offset of whiteboard polylines (`STROKE_FORWARD_OFFSET_M` in `drawSphereClient.js`).
+    // 2. The z-offset of the screenshare local web entity (`LOCAL_WEB_ENTITY_Z_OFFSET` in `smartboardZoneClient.js`).
+    // 3. The z-offset of the screenshare "glass bezel" (`DEFAULT_SMARTBOARD_SCREENSHARE_GLASS_PROPS` in `smartboardZoneClient.js`).
+    // 4. The z-offset of the screenshare "status icon" (handled in the screenshare JSON file).
+    var LOCAL_WEB_ENTITY_Z_OFFSET = 0.0375;
     function preload(entityID) {
         _this.entityID = entityID;
         _this.smartboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
@@ -308,6 +314,8 @@
         if (parsedData.whiteboardOnlyZone) {
             _this.whiteboardOnlyZone = parsedData.whiteboardOnlyZone;
         }
+
+        Screenshare.localWebEntityZOffset = LOCAL_WEB_ENTITY_Z_OFFSET;
     }
 
 

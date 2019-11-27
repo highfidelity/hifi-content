@@ -30,3 +30,6 @@ The three main script files for the Smartboard's Screen Share mode are:
 
 ## v1.3 :: [commit 9444d21](https://github.com/highfidelity/hifi-content/commits/9444d21)
 - Added logic to harden against out-of-order entity and script loading.
+
+## v1.4 :: [commit 56f17ae](https://github.com/highfidelity/hifi-content/commits/56f17ae)
+- DEV-2840: Fix z-fighting issues in Smartboard components and enable quicker positional iteration in the future.
