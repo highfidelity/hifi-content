@@ -34,5 +34,5 @@ The three main script files for the Smartboard's Screen Share mode are:
 ## v1.4 :: [commit 56f17ae](https://github.com/highfidelity/hifi-content/commits/56f17ae)
 - DEV-2840: Fix z-fighting issues in Smartboard components and enable quicker positional iteration in the future.
 
-## v1.5 :: [commit 56f17ae](https://github.com/highfidelity/hifi-content/commits/56f17ae)
+## v1.5 :: [commit 4ec3f4b]](https://github.com/highfidelity/hifi-content/commits/4ec3f4b])
 - DEV-2857: Upped timeout for showing the presenter name
