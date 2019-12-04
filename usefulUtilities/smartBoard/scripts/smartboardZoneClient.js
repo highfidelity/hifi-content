@@ -154,7 +154,7 @@
     // Empirical value at the moment.  May adjust when moving to dynamic scaling.
     var MAXIMUM_NAME_LENGTH_ALLOWED = 17;
     var REPLACEMENT_TEXT = "...";
-    var DEFAULT_TEXT_ENTITY_WIDTH = 1; 
+    var DEFAULT_TEXT_ENTITY_WIDTH = 1.5; 
     function maybeCreateLocalPresenterDisplayName() {
         maybeRemoveLocalPresenterDisplayName();
 
