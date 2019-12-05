@@ -156,7 +156,9 @@
     var REPLACEMENT_TEXT = "...";
     var DEFAULT_TEXT_ENTITY_WIDTH = 1.5; 
     function maybeCreateLocalPresenterDisplayName() {
-        maybeRemoveLocalPresenterDisplayName();
+        if (_this.localPresenterDisplayName) {
+            return;	
+        }
 
         if (!_this.smartboard) {
             _this.smartboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
