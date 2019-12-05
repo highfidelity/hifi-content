@@ -157,7 +157,7 @@
     var DEFAULT_TEXT_ENTITY_WIDTH = 1.5; 
     function maybeCreateLocalPresenterDisplayName() {
         if (_this.localPresenterDisplayName) {
-            return;	
+            return;
         }
 
         if (!_this.smartboard) {
