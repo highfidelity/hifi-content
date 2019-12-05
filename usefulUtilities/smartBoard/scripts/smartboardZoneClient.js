@@ -149,11 +149,12 @@
         }
     };
     var LINE_HEIGHT = 0.1;
-    var PRESENTER_TEXT_DELAY_MS = 100;
+    var PRESENTER_TEXT_DELAY_MS = 350;
     var TEXT_SIZE_WIDTH_BUFFER = 1.15; // textsize calculation from engine is slightly off
     // Empirical value at the moment.  May adjust when moving to dynamic scaling.
     var MAXIMUM_NAME_LENGTH_ALLOWED = 17;
     var REPLACEMENT_TEXT = "...";
+    var DEFAULT_TEXT_ENTITY_WIDTH = 1.5; 
     function maybeCreateLocalPresenterDisplayName() {
         if (_this.localPresenterDisplayName) {
             return;
@@ -175,7 +176,7 @@
             : displayName;
 
         textProps.parentID = _this.smartboard;
-        textProps.dimensions = {x: 0, y: LINE_HEIGHT, z: 0.1009};
+        textProps.dimensions = {x: DEFAULT_TEXT_ENTITY_WIDTH, y: LINE_HEIGHT, z: 0.1009};
         textProps.localPosition = {x: 0, y: 1.1563, z: entityOffsetFromBoard + margin};
         textProps.text = displayName + " is presenting";
         textProps.visible = false;
