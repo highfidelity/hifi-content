@@ -96,6 +96,10 @@
 
         /* When clicked or triggered, reset board. */
         mousePressOnEntity: function( entityID, event ) {
+            if (!smartboardZone) {
+                _this.getSmartboardZone();
+            }
+
             var currentBoardState = false;
 
             try {

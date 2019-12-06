@@ -138,6 +138,18 @@
             _this.playSound(OPEN_SOUND, OPEN_SOUND_VOLUME, MyAvatar.position, true, false);
         },
 
+        getSmartboardZoneIDs: function() {
+            _this.smartboard = Entities.getEntityProperties(_this.colorPaletteID, 'parentID').parentID;
+            _this.smartboardParts = Entities.getChildrenIDs(_this.smartboard);
+            _this.smartboardParts.forEach(function(smartboardPart) {
+                var name = Entities.getEntityProperties(smartboardPart, 'name').name;
+                if (name === "Smartboard Zone") {
+                    _this.smartboardZone = smartboardPart;
+                }
+            });
+            _this.smartboardParts.push(_this.smartboard);
+        },
+        
         /* Collect IDs of integral parts used in drawing */
         prepareDrawingData: function() {
             try {
@@ -152,15 +164,8 @@
             _this.color = properties.color;
             _this.texture = parsedUserData.textureURL;
             _this.colorPaletteID = parsedUserData.colorPaletteID;
-            _this.smartboard = Entities.getEntityProperties(_this.colorPaletteID, 'parentID').parentID;
-            _this.smartboardParts = Entities.getChildrenIDs(_this.smartboard);
-            _this.smartboardParts.forEach(function(smartboardPart) {
-                var name = Entities.getEntityProperties(smartboardPart, 'name').name;
-                if (name === "Smartboard Zone") {
-                    _this.smartboardZone = smartboardPart;
-                }
-            });
-            _this.smartboardParts.push(_this.smartboard);
+            _this.getSmartboardZoneIDs();
+
             readyToDraw = true;
         },
 
@@ -314,7 +319,7 @@
         front of camera. Begin drawing sound and store initial data. If deleting, begin at current point. */
         mousePressed: function(event) {
             if (!_this.smartboardZone) {
-                return;
+                _this.getSmartboardZoneIDs();
             }
 
             var currentBoardState = false;
@@ -504,7 +509,7 @@
             if (currentBoardState !== "whiteboard") {
                 return;
             }
-            
+
             if (!readyToDraw) {
                 return;
             }
