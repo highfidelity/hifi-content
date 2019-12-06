@@ -97,13 +97,15 @@
         /* When clicked or triggered, reset board. */
         mousePressOnEntity: function( entityID, event ) {
             var currentBoardState = false;
+            
             try {
                 currentBoardState = JSON.parse(Entities.getEntityProperties(smartBoardZone, "userData")).userData.currentBoardState;
-                if (currentBoardState === "screenshare") {
-                    return;
-                }
             } catch (e) {
                 console.log("error parsing smartBoardZone's userData: " + e);
+            }
+
+            if (currentBoardState !== "whiteboard") {
+                return;
             }
 
             if (event.isLeftButton) {

@@ -313,21 +313,23 @@
         /* On mouse press, if the user is not in the smartboard zone or is using tablet or create, ignore. Check for 
         an intersection, and project point onto board if necessary. If drawing in air, project point forward 1M in 
         front of camera. Begin drawing sound and store initial data. If deleting, begin at current point. */
-        mousePressed: function(event) {
-            var currentBoardState = false;
-            try {
-                currentBoardState = JSON.parse(Entities.getEntityProperties(_this.smartBoardZone, "userData")).userData.currentBoardState;
-                if (currentBoardState === "screenshare") {
-                    return;
-                }
-            } catch (e) {
-                console.log("error parsing smartBoardZone's userData: " + e);
-            }
-             
-            if (_this.activated); 
+        mousePressed: function(event) {           
             if (!_this.smartboardZone) {
                 return;
             }
+
+            var currentBoardState = false;
+
+            try {
+                currentBoardState = JSON.parse(Entities.getEntityProperties(_this.smartBoardZone, "userData")).userData.currentBoardState;
+            } catch (e) {
+                console.log("error parsing smartBoardZone's userData: " + e);
+            }
+
+            if (currentBoardState !== "whiteboard") {
+                return;
+            }
+
             if (!_this.isUserInZone(_this.smartboardZone)) {
                 Entities.deleteEntity(_this.entityID);
             }
