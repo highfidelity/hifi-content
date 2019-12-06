@@ -103,9 +103,9 @@
                     return;
                 }
             } catch (e) {
-                console.log("error: " + e);
+                console.log("error parsing smartBoardZone's userData: " + e);
             }
-            
+
             if (event.isLeftButton) {
                 _this.resetSmartboard();
             }

@@ -321,7 +321,7 @@
                     return;
                 }
             } catch (e) {
-                console.log("error: " + e);
+                console.log("error parsing smartBoardZone's userData: " + e);
             }
              
             if (_this.activated); 
