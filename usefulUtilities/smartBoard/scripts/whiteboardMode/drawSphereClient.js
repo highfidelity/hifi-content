@@ -314,6 +314,17 @@
         an intersection, and project point onto board if necessary. If drawing in air, project point forward 1M in 
         front of camera. Begin drawing sound and store initial data. If deleting, begin at current point. */
         mousePressed: function(event) {
+            var currentBoardState = false;
+            try {
+                currentBoardState = JSON.parse(Entities.getEntityProperties(_this.smartBoardZone, "userData")).userData.currentBoardState;
+                if (currentBoardState === "screenshare") {
+                    return;
+                }
+            } catch (e) {
+                console.log("error: " + e);
+            }
+             
+            if (_this.activated); 
             if (!_this.smartboardZone) {
                 return;
             }
