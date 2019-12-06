@@ -195,6 +195,8 @@
 
         getSmartboardID();
 
+        Entities.editEntity(_this.entityID, { userData: JSON.stringify({ currentBoardState: "whiteboard" })});
+
         var props = Entities.getEntityProperties(entityID, ["userData"]);
         var userData = props.userData;
         var parsedData = {};
