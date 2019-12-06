@@ -314,7 +314,6 @@
         an intersection, and project point onto board if necessary. If drawing in air, project point forward 1M in 
         front of camera. Begin drawing sound and store initial data. If deleting, begin at current point. */
         mousePressed: function(event) {
-            console.log("Mouse Pressed");
             if (!_this.smartboardZone) {
                 return;
             }
@@ -329,8 +328,6 @@
             if (currentBoardState !== "whiteboard") {
                 return;
             }
-
-            console.log("currentBoardState2:", currentBoardState);
 
             if (!_this.isUserInZone(_this.smartboardZone)) {
                 Entities.deleteEntity(_this.entityID);
@@ -498,7 +495,17 @@
         button, ignore. Get line point data and begin draw sound then start an interval to continue collecting data 
         and drawing */
         triggerPressed: function() {
-            console.log("Trigger pressed");
+            var currentBoardState = false;
+            try {
+                currentBoardState = JSON.parse(Entities.getEntityProperties(_this.smartboardZone, "userData").userData).currentBoardState;
+            } catch (e) {
+                console.log("error parsing smartBoardZone's userData: " + e);
+            }
+
+            if (currentBoardState !== "whiteboard") {
+                return;
+            }
+            
             if (!readyToDraw) {
                 return;
             }
