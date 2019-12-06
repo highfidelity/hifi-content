@@ -97,9 +97,9 @@
         /* When clicked or triggered, reset board. */
         mousePressOnEntity: function( entityID, event ) {
             var currentBoardState = false;
-            
+
             try {
-                currentBoardState = JSON.parse(Entities.getEntityProperties(smartBoardZone, "userData")).userData.currentBoardState;
+                currentBoardState = JSON.parse(Entities.getEntityProperties(smartboardZone, "userData").userData).currentBoardState;
             } catch (e) {
                 console.log("error parsing smartBoardZone's userData: " + e);
             }
