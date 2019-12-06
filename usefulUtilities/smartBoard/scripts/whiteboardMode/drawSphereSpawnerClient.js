@@ -18,6 +18,8 @@
     var dominantHandJoint;
     var dominantHand;
 
+    var smartboardZone;
+
     var PaintSphereSpawner = function() {
         _this = this;
     };
@@ -27,6 +29,15 @@
         /* ON PRELOAD: Save a reference to this */
         preload: function(entityID) {
             _this.entityID = entityID;
+
+            var smartboard = Entities.getEntityProperties(entityID, 'parentID').parentID;
+            var smartboardParts = Entities.getChildrenIDs(smartboard);
+            smartboardParts.forEach(function(smartboardPart) {
+                var name = Entities.getEntityProperties(smartboardPart, 'name').name;
+                if (name === "Smartboard Zone") {
+                    smartboardZone = smartboardPart;
+                }
+            });
         },
 
         /* Convert RGB value to 0-1 scale */
@@ -107,6 +118,17 @@
 
         /* Create a paint sphere on hand. */
         mousePressOnEntity: function( entityID, event ) {
+            var currentBoardState = false;
+            try {
+                currentBoardState = JSON.parse(Entities.getEntityProperties(smartboardZone, "userData").userData).currentBoardState;
+            } catch (e) {
+                console.log("error parsing smartBoardZone's userData: " + e);
+            }
+
+            if (currentBoardState !== "whiteboard") {
+                return;
+            }
+
             if (event.isLeftButton) {
                 _this.createPaintSphere();
             }
