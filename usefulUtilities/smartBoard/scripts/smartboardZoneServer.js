@@ -23,7 +23,8 @@
 
         _this.currentBoardState = args[0];
         _this.activePresenterUUID = args[1];
-
+        
+        Entities.editEntity(_this.entityID, { userData: JSON.stringify({ currentBoardState: _this.currentBoardState })});
         // Reset the active presenter UUID if the new current board state is "whiteboard".
         if (_this.currentBoardState === "whiteboard") {
             _this.activePresenterUUID = "";
@@ -193,6 +194,8 @@
         }
 
         getSmartboardID();
+
+        Entities.editEntity(_this.entityID, { userData: JSON.stringify({ currentBoardState: "whiteboard" })});
 
         var props = Entities.getEntityProperties(entityID, ["userData"]);
         var userData = props.userData;

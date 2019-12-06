@@ -36,3 +36,6 @@ The three main script files for the Smartboard's Screen Share mode are:
 
 ## v1.5 :: [commit 94c3414](https://github.com/highfidelity/hifi-content/commits/94c3414)
 - DEV-2857: Upped timeout for showing the presenter name
+
+## v1.6 :: [commit bbc05b2](https://github.com/highfidelity/hifi-content/commits/bbc05b2)
+- DEV-2862: Fixed being able to draw during share

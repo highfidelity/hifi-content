@@ -18,6 +18,8 @@
     var dominantHandJoint;
     var dominantHand;
 
+    var smartboardZone;
+
     var PaintSphereSpawner = function() {
         _this = this;
     };
@@ -27,6 +29,8 @@
         /* ON PRELOAD: Save a reference to this */
         preload: function(entityID) {
             _this.entityID = entityID;
+
+            _this.getSmartboardZoneID();
         },
 
         /* Convert RGB value to 0-1 scale */
@@ -105,8 +109,35 @@
             }, 'avatar');
         },
 
+        getSmartboardZoneID: function(){
+            var smartboard = Entities.getEntityProperties(_this.entityID, 'parentID').parentID;
+            var smartboardParts = Entities.getChildrenIDs(smartboard);
+            smartboardParts.forEach(function(smartboardPart) {
+                var name = Entities.getEntityProperties(smartboardPart, 'name').name;
+                if (name === "Smartboard Zone") {
+                    smartboardZone = smartboardPart;
+                }
+            });
+        },
+
         /* Create a paint sphere on hand. */
         mousePressOnEntity: function( entityID, event ) {
+            if (!smartboardZone) {
+                _this.getSmartboardZoneID();
+            }
+
+            var currentBoardState = false;
+
+            try {
+                currentBoardState = JSON.parse(Entities.getEntityProperties(smartboardZone, "userData").userData).currentBoardState;
+            } catch (e) {
+                console.log("error parsing smartBoardZone's userData: " + e);
+            }
+
+            if (currentBoardState !== "whiteboard") {
+                return;
+            }
+
             if (event.isLeftButton) {
                 _this.createPaintSphere();
             }

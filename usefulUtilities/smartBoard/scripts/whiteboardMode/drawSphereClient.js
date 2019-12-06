@@ -138,6 +138,18 @@
             _this.playSound(OPEN_SOUND, OPEN_SOUND_VOLUME, MyAvatar.position, true, false);
         },
 
+        getSmartboardZoneIDs: function() {
+            _this.smartboard = Entities.getEntityProperties(_this.colorPaletteID, 'parentID').parentID;
+            _this.smartboardParts = Entities.getChildrenIDs(_this.smartboard);
+            _this.smartboardParts.forEach(function(smartboardPart) {
+                var name = Entities.getEntityProperties(smartboardPart, 'name').name;
+                if (name === "Smartboard Zone") {
+                    _this.smartboardZone = smartboardPart;
+                }
+            });
+            _this.smartboardParts.push(_this.smartboard);
+        },
+        
         /* Collect IDs of integral parts used in drawing */
         prepareDrawingData: function() {
             try {
@@ -152,15 +164,8 @@
             _this.color = properties.color;
             _this.texture = parsedUserData.textureURL;
             _this.colorPaletteID = parsedUserData.colorPaletteID;
-            _this.smartboard = Entities.getEntityProperties(_this.colorPaletteID, 'parentID').parentID;
-            _this.smartboardParts = Entities.getChildrenIDs(_this.smartboard);
-            _this.smartboardParts.forEach(function(smartboardPart) {
-                var name = Entities.getEntityProperties(smartboardPart, 'name').name;
-                if (name === "Smartboard Zone") {
-                    _this.smartboardZone = smartboardPart;
-                }
-            });
-            _this.smartboardParts.push(_this.smartboard);
+            _this.getSmartboardZoneIDs();
+
             readyToDraw = true;
         },
 
@@ -309,14 +314,25 @@
             }
             return smartboardIntersectionData;
         },
-
         /* On mouse press, if the user is not in the smartboard zone or is using tablet or create, ignore. Check for 
         an intersection, and project point onto board if necessary. If drawing in air, project point forward 1M in 
         front of camera. Begin drawing sound and store initial data. If deleting, begin at current point. */
         mousePressed: function(event) {
             if (!_this.smartboardZone) {
+                _this.getSmartboardZoneIDs();
+            }
+
+            var currentBoardState = false;
+            try {
+                currentBoardState = JSON.parse(Entities.getEntityProperties(_this.smartboardZone, "userData").userData).currentBoardState;
+            } catch (e) {
+                console.log("error parsing smartBoardZone's userData: " + e);
+            }
+
+            if (currentBoardState !== "whiteboard") {
                 return;
             }
+
             if (!_this.isUserInZone(_this.smartboardZone)) {
                 Entities.deleteEntity(_this.entityID);
             }
@@ -483,6 +499,17 @@
         button, ignore. Get line point data and begin draw sound then start an interval to continue collecting data 
         and drawing */
         triggerPressed: function() {
+            var currentBoardState = false;
+            try {
+                currentBoardState = JSON.parse(Entities.getEntityProperties(_this.smartboardZone, "userData").userData).currentBoardState;
+            } catch (e) {
+                console.log("error parsing smartBoardZone's userData: " + e);
+            }
+
+            if (currentBoardState !== "whiteboard") {
+                return;
+            }
+
             if (!readyToDraw) {
                 return;
             }
