@@ -309,7 +309,6 @@
             }
             return smartboardIntersectionData;
         },
-        
         /* On mouse press, if the user is not in the smartboard zone or is using tablet or create, ignore. Check for 
         an intersection, and project point onto board if necessary. If drawing in air, project point forward 1M in 
         front of camera. Begin drawing sound and store initial data. If deleting, begin at current point. */
