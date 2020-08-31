@@ -11,5 +11,5 @@ var vircadiaColors = script.require(brandColors.js);
 entity.color = vircadiaColors.BLACK;
 
 # Release Notes
-## 1.0 | [commit 43d222f] | 2020-08-30
+## 1.0 | [commit 1156909] | 2020-08-30
 - Initial update from "hifi" -> "vircadia" colors.
