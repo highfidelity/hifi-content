@@ -1,0 +1,6 @@
+{
+    "Assets": {
+        location: "/Assets",
+        directories: ["/Audio"]
+    }
+}

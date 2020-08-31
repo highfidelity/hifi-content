@@ -1,0 +1,120 @@
+{
+  "DataVersion": 0,
+  "Entities": [
+    {
+    "id": "{95b4095c-87c2-4062-9b02-eebea7254cf4}",
+    "type": "Material",
+    "lastEdited": 1598833243688030,
+    "parentID": "{70492310-e480-4f08-b040-a21bbb6f1b7e}",
+    "parentJointIndex": 0,
+    "name": "JacobsLadderSparks",
+    "userData": "{\"verticalScrollSpeed\":0.5,\"horizontalScrollSpeed\":0.43,\"updateRate\":50}",
+    "description": "Material containing most of the properties available, remove \"_disabled\" on a property to use",
+    "position": {
+        "x": 0.00006330013275146484,
+        "y": 0.00006006733747199178,
+        "z": 0.16304993629455566
+    },
+    "rotation": {
+        "x": -0.7069962620735168,
+        "y": -0.000045776374463457614,
+        "z": 0.00022888180683366954,
+        "w": -0.7072404026985168
+    },
+    "created": 1598831531077908,
+    "lastEditedBy": "{771e024f-a5f4-4aa2-a6f6-a7c7ff6610c2}",
+    "queryAACube": {
+        "x": -18.4648380279541,
+        "y": -1.9060287475585938,
+        "z": -22.173189163208008,
+        "scale": 1.6746368408203125
+    },
+    "canCastShadow": false,
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "collisionMask": 23,
+    "collidesWith": "static,dynamic,kinematic,otherAvatar,",
+    "script": "https://www.dropbox.com/s/7xw3uiibe2vsk16/sparks.js?dl=1",
+    "scriptTimestamp": 1598832587348,
+    "materialURL": "materialData",
+    "priority": 3,
+    "parentMaterialName": "[mat::Spark]",
+    "materialMappingPos": {
+        "x": 0.3440000116825104,
+        "y": 0.4000000059604645
+    },
+    "materialData": "{\"materialVersion\":1,\"materials\":[{\"name\":\"sparks\",\"model\":\"hifi_pbr\",\"opacity\":0.9,\"albedo\":[1,1,10],\"roughness\":1,\"metallic\":0,\"emissive\":[0,0,0],\"unlit\":false,\"emissiveMap\":\"https://silverfish-freestuff.s3.eu-north-1.amazonaws.com/Misc/JacobsLadder/lightning_Alpha.png\",\"albedoMap\":\"https://silverfish-freestuff.s3.eu-north-1.amazonaws.com/Misc/JacobsLadder/lightning_Alpha.png\",\"opacityMapMode\":\"OPACITY_MAP_MASK\",\"opacityCutoff_disabled\":\"\",\"cullFaceMode\":\"CULL_NONE\"}]}",
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+},
+    {
+    "id": "{70492310-e480-4f08-b040-a21bbb6f1b7e}",
+    "type": "Model",
+    "lastEdited": 1598833243688113,
+    "dimensions": {
+        "x": 0.5174550414085388,
+        "y": 1.5572099685668945,
+        "z": 0.334281325340271
+    },
+    "rotation": {
+        "x": -0.0000152587890625,
+        "y": 0.42259860038757324,
+        "z": -0.0000457763671875,
+        "w": 0.9063096046447754
+    },
+    "created": 1598831531077837,
+    "lastEditedBy": "{771e024f-a5f4-4aa2-a6f6-a7c7ff6610c2}",
+    "queryAACube": {
+        "x": -0.8373181223869324,
+        "y": -0.8373181223869324,
+        "z": -0.8373181223869324,
+        "scale": 1.6746362447738647
+    },
+    "grab": {
+        "grabbable": false,
+        "equippableLeftRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        },
+        "equippableRightRotation": {
+            "x": -0.0000152587890625,
+            "y": -0.0000152587890625,
+            "z": -0.0000152587890625,
+            "w": 1
+        }
+    },
+    "damping": 0,
+    "angularDamping": 0,
+    "modelURL": "https://silverfish-freestuff.s3.eu-north-1.amazonaws.com/Misc/JacobsLadder/jacobsladder.fbx",
+    "blendshapeCoefficients": "{\n}\n",
+    "animation": {
+        "allowTranslation": false
+    },
+    "clientOnly": false,
+    "avatarEntity": false,
+    "localEntity": false,
+    "faceCamera": false,
+    "isFacingAvatar": false
+}
+    ],
+  "Id": "{bbfc0960-b268-42c7-b2d1-35b00a042ff8}",
+  "Version": 128
+}
