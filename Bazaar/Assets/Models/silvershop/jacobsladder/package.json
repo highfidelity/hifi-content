@@ -1,0 +1,59 @@
+{
+    "name": "test-project",
+    "version": "1.0.0",
+    "description": "A Vircadia item/project/world?",
+    "homepage": "https://whatever.com/package",
+    "bugs": "https://github.com/whatever/package/issues",
+    "keywords": [
+        "email",
+        "machine learning",
+        "ai"
+    ],
+    "icon": "img/icon.png",
+    "images": [
+        "img/image.png"
+    ],
+    "author": {
+        "name": "Joe",
+        "email": "joe@whatever.com",
+        "url": "https://whatever.com"
+    },
+    "contributors": [
+        {
+            "name": "Joe",
+            "email": "joe@whatever.com",
+            "url": "https://whatever.com"
+        }
+    ],
+    "license": "CC0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/whatever/testing.git"
+    },
+    "main": "fbx/model.fbx",
+    "type": "model/script/sound/etc...",
+    "meta": {
+        "maybe put meta commands for how an app can": "use the item here, ? e.g. my model should be spawned differently...",
+        "scale": {
+            "x": 5,
+            "y": 5,
+            "z": 5
+        },
+        "hapticMonkeyScale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
+        },
+        "spawnDistance": 5,
+        "polys": 500000,
+        "useas": "script"
+    },
+    "dependencies": {
+        "vircadia-content": {
+            "haps-script": ">= 1.2.2"
+        }
+    },
+    "engines": {
+        "Vircadia": ">= 2020.2.4"
+    }
+}
