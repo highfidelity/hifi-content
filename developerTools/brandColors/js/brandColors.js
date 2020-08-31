@@ -13,15 +13,15 @@
 
 
 module.exports = {
-    HIFI_RED: "#ff001a",
-    HIFI_MAGENTA: "#ff42a7",
-    HIFI_GRAY_XLITE: "#f1f3ee",
-    HIFI_GRAY_LITE: "#d8e1d9",
-    HIFI_GRAY_MID: "#b7c8b9",
-    HIFI_GRAY_DARK: "#7e8c81",
-    HIFI_BLACK: "#000000",
-    HIFI_BLUE: "#172983",
-    HIFI_CYAN: "#009ee0",
-    HIFI_GREEN: "#009036",
-    HIFI_YELLOW: "#ffed00"
+    VIRCADIA_RED: "#ff001a",
+    VIRCADIA_MAGENTA: "#8C1AFF",
+    VIRCADIA_GRAY_XLITE: "#f1f3ee",
+    VIRCADIA_GRAY_LITE: "#d8e1d9",
+    VIRCADIA_GRAY_MID: "#b7c8b9",
+    VIRCADIA_GRAY_DARK: "#7e8c81",
+    VIRCADIA_BLACK: "#000000",
+    VIRCADIA_BLUE: "#357FFF",
+    VIRCADIA_CYAN: "#2CB9FE",
+    VIRCADIA_GREEN: "#009036",
+    VIRCADIA_YELLOW: "#ffed00"
 };
