@@ -4,7 +4,7 @@ Contributing
 2. Clone your fork of the repository locally
 
   ```
-  git clone git://github.com/USERNAME/hifi-content.git
+  git clone git://github.com/USERNAME/vircadia-content.git
   ```
 3. Create a new branch
   
@@ -19,7 +19,7 @@ Contributing
 6. Update your branch
   
   ```
-  git remote add upstream https://github.com/highfidelity/hifi-content
+  git remote add upstream https://github.com/highfidelity/vircadia-content
   git pull upstream master
   ```
   Resolve any conflicts that arise with this step.
@@ -36,7 +36,7 @@ Contributing
 
 LFS
 ===
-Certain file types in hifi-content are tracked by [Git Large File Storage (LFS)](https://git-lfs.github.com/) Install LFS on your development machine to ensure the following file types are tracked properly: 
+Certain file types in vircadia-content are tracked by [Git Large File Storage (LFS)](https://git-lfs.github.com/) Install LFS on your development machine to ensure the following file types are tracked properly: 
 * OBJ
 * FBX
 * WAV
