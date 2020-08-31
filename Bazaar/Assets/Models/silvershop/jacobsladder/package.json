@@ -9,6 +9,10 @@
         "machine learning",
         "ai"
     ],
+    "icon": "img/icon.png",
+    "images": [
+        "img/image.png"
+    ],
     "author": {
         "name": "Joe",
         "email": "joe@whatever.com",
