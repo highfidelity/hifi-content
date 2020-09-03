@@ -12,14 +12,14 @@ Contributing
   git checkout -b new_branch_name 
   ```
 4. Code
-  * Follow the [coding standard](https://docs.highfidelity.com/build-guide/coding-standards)
+  * Follow the [coding standard](https://github.com/kasenvr/project-athena/blob/master/CODING_STANDARD.md)
   * Install and configure [ESLINT](https://eslint.org/) for your editor to apply formatting for scripts 
 5. Commit
   * Use well formed commit messages
 6. Update your branch
   
   ```
-  git remote add upstream https://github.com/highfidelity/vircadia-content
+  git remote add upstream https://github.com/kasenvr/vircadia-content
   git pull upstream master
   ```
   Resolve any conflicts that arise with this step.
