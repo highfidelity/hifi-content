@@ -1,4 +1,4 @@
-Vircadia is an early-stage technology lab experimenting with Virtual Worlds and VR. 
+Vircadia is a metaverse engine and platform based on the principles of open-source and decentralization. 
 
 Download
 ========
@@ -22,16 +22,16 @@ Our file structure is designed to store projects related to how they are deploye
 
 * Utilities: Projects or code that is meant to extend the Interface functionality or provide other utility function for working in Vircadia
 
-If you find a bug and have a fix, pull requests are welcome. Please follow the guideliness in the [Contributing](https://github.com/kasenvr/vircadia-content/blob/master/contributing.md) file
+If you find a bug and have a fix, pull requests are welcome. Please follow the guideliness in the [Contributing](https://github.com/vircadia/vircadia-content/blob/master/contributing.md) file.
 
 Documentation
 =========
 Documentation is available at [docs.vircadia.com](https://docs.vircadia.com). If you're just getting started with the platform, check out some of these pages to learn more:
 * [What is Vircadia?](https://docs.vircadia.dev/home.html)
-* [Get Started: Installation](https://docs.vircadia.com/get-started/installation)
-* [Set up your Domain](https://docs.vircadia.com/learn-with-us/setup-your-domain-to-build)
-* [Get Started with Scripting](https://docs.vircadia.com/learn-with-us/get-started-with-scripting)
-* [Vircadia API Reference](https://docs.vircadia.com/api-reference)
+* [Get Started: Installation](https://docs.vircadia.dev/get-started/installation)
+* [Set up your Domain](https://docs.vircadia.dev/learn-with-us/setup-your-domain-to-build)
+* [Get Started with Scripting](https://docs.vircadia.dev/learn-with-us/get-started-with-scripting)
+* [Vircadia API Reference](https://apidocs.vircadia.dev)
 
 There is also detailed [documentation on our coding standards](https://github.com/kasenvr/project-athena/blob/master/CODING_STANDARD.md).
 
