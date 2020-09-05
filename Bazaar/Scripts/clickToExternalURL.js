@@ -13,15 +13,41 @@
     this.entityID = null;
     var _this = this;
     
-    var overlayWebWindow;
+    var defaultUserData = {
+        "useConfirmDialog": false
+    }
     
     function getURLfromEntityDescription() {
         return Entities.getEntityProperties(_this.entityID, ["description"]).description;
     }
     
+    function getEntityUserData() {
+        return Entities.getEntityProperties(_this.entityID, ["userData"]).userData;
+    }
+    
+    function setDefaultUserData() {
+        Entities.editEntity(_this.entityID, {
+            userData: JSON.stringify(defaultUserData)
+        });
+    }
+    
     function onMousePressOnEntity(pressedEntityID, event) {
         if (_this.entityID === pressedEntityID) {
-            Window.openUrl(getURLfromEntityDescription());
+            var userData = getEntityUserData();
+            
+            try {
+                userData = Object(JSON.parse(userData)); 
+            } catch (e) {
+                userData = defaultUserData; setDefaultUserData(); 
+            }
+            
+            if (userData.useConfirmDialog === true) {
+                if (Window.confirm("Are you sure you want to open this link?")) {
+                    Window.openUrl(getURLfromEntityDescription());
+                }
+            } else {
+                Window.openUrl(getURLfromEntityDescription());
+            }
         }
     }
     
@@ -29,11 +55,12 @@
 
     this.preload = function (ourID) {
         this.entityID = ourID;
+        setDefaultUserData();
         
         Entities.mousePressOnEntity.connect(onMousePressOnEntity);
     };
 
-    this.unload = function(entityID) {
+    this.unload = function (entityID) {
         Entities.mousePressOnEntity.disconnect(onMousePressOnEntity);
     };
 
