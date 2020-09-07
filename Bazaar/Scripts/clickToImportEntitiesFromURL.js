@@ -49,13 +49,7 @@
     function onMousePressOnEntity(pressedEntityID, event) {
         if (_this.entityID === pressedEntityID) {
             var userData = getAndParseUserData();
-            
-            try {
-                userData = Object(JSON.parse(userData)); 
-            } catch (e) {
-                userData = defaultUserData; setDefaultUserData(); 
-            }
-            
+
             if (userData.useConfirmDialog === true) {
                 if (Window.confirm("Are you sure you want to import these entities?")) {
                     importAndPasteEntities();
@@ -70,7 +64,7 @@
 
     this.preload = function (ourID) {
         this.entityID = ourID;
-        setDefaultUserData();
+        getAndParseUserData();
 
         Entities.mousePressOnEntity.connect(onMousePressOnEntity);
     };
