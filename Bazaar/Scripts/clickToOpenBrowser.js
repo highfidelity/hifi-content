@@ -17,15 +17,14 @@
 
     var defaultUserData = {
         "useConfirmDialog": true,
-        "openIn": "interface", // options are "interface" and "browser"
+        "url": "https://vircadia.com/",
+        // options are "interface" and "browser"
+        // "interface" opens an overlay, "browser" opens the OS' browser.
+        "openIn": "interface",
         "dimensions": {
             "width": 800,
             "height": 600
         }
-    }
-
-    function getURLfromEntityDescription() {
-        return Entities.getEntityProperties(_this.entityID, ["description"]).description;
     }
 
     function getEntityUserData() {
@@ -73,16 +72,16 @@
             if (userData.useConfirmDialog === true) {
                 if (Window.confirm("Are you sure you want to open this link?")) {
                     if (userData.openIn === "interface") {
-                        createOverlayWebWindow(getURLfromEntityDescription(), userData.dimensions.height, userData.dimensions.width);
+                        createOverlayWebWindow(userData.url, userData.dimensions.height, userData.dimensions.width);
                     } else {
-                        Window.openUrl(getURLfromEntityDescription());
+                        Window.openUrl(userData.url);
                     }
                 }
             } else {
                 if (userData.openIn === "interface") {
-                    createOverlayWebWindow(getURLfromEntityDescription(), userData.dimensions.height, userData.dimensions.width);
+                    createOverlayWebWindow(userData.url, userData.dimensions.height, userData.dimensions.width);
                 } else {
-                    Window.openUrl(getURLfromEntityDescription());
+                    Window.openUrl(userData.url);
                 }
             }
         }
