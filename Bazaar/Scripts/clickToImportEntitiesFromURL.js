@@ -21,10 +21,6 @@
         return Entities.getEntityProperties(_this.entityID, ["description"]).description;
     }
     
-    function getEntityUserData() {
-        return Entities.getEntityProperties(_this.entityID, ["userData"]).userData;
-    }
-    
     function setDefaultUserData() {
         Entities.editEntity(_this.entityID, {
             userData: JSON.stringify(defaultUserData)
@@ -37,9 +33,22 @@
         }
     }
     
+    function getAndParseUserData() {
+        var userData = getEntityUserData();
+
+        try {
+            userData = Object(JSON.parse(userData)); 
+        } catch (e) {
+            userData = defaultUserData;
+            setDefaultUserData();
+        }
+
+        return userData;
+    }
+    
     function onMousePressOnEntity(pressedEntityID, event) {
         if (_this.entityID === pressedEntityID) {
-            var userData = getEntityUserData();
+            var userData = getAndParseUserData();
             
             try {
                 userData = Object(JSON.parse(userData)); 
