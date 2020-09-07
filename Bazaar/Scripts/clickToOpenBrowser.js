@@ -1,5 +1,5 @@
 /*
-    clickToURL.js
+    clickToOpenBrowser.js
 
     Created by Kalila L. on 3 Aug 2020
     Copyright 2020 Vircadia and contributors.
@@ -16,7 +16,12 @@
     var overlayWebWindow;
 
     var defaultUserData = {
-        "useConfirmDialog": false
+        "useConfirmDialog": true,
+        "openIn": "interface", // options are "interface" and "browser"
+        "dimensions": {
+            "width": 800,
+            "height": 600
+        }
     }
 
     function getURLfromEntityDescription() {
@@ -33,18 +38,31 @@
         });
     }
 
-    function createOverlayWebWindow() {
+    function createOverlayWebWindow(url, height, width) {
         overlayWebWindow = new OverlayWebWindow({
             title: "Vircadia Browser",
-            source: getURLfromEntityDescription(),
-            width: 800,
-            height: 600
+            source: url,
+            width: width,
+            height: height
         });
+    }
+
+    function getAndParseUserData() {
+        var userData = getEntityUserData();
+
+        try {
+            userData = Object(JSON.parse(userData)); 
+        } catch (e) {
+            userData = defaultUserData;
+            setDefaultUserData();
+        }
+
+        return userData;
     }
 
     function onMousePressOnEntity(pressedEntityID, event) {
         if (_this.entityID === pressedEntityID) {
-            var userData = getEntityUserData();
+            var userData = getAndParseUserData();
 
             try {
                 userData = Object(JSON.parse(userData)); 
@@ -54,11 +72,18 @@
 
             if (userData.useConfirmDialog === true) {
                 if (Window.confirm("Are you sure you want to open this link?")) {
-                    console.log("LOL");
-                    createOverlayWebWindow();
+                    if (userData.openIn === "interface") {
+                        createOverlayWebWindow(getURLfromEntityDescription(), userData.dimensions.height, userData.dimensions.width);
+                    } else {
+                        Window.openUrl(getURLfromEntityDescription());
+                    }
                 }
             } else {
-                createOverlayWebWindow();
+                if (userData.openIn === "interface") {
+                    createOverlayWebWindow(getURLfromEntityDescription(), userData.dimensions.height, userData.dimensions.width);
+                } else {
+                    Window.openUrl(getURLfromEntityDescription());
+                }
             }
         }
     }
@@ -68,7 +93,7 @@
 
     this.preload = function (ourID) {
         this.entityID = ourID;
-        setDefaultUserData();
+        getAndParseUserData();
         
         Entities.mousePressOnEntity.connect(onMousePressOnEntity);
     };
