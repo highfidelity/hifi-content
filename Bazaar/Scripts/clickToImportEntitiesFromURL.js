@@ -21,6 +21,10 @@
         return Entities.getEntityProperties(_this.entityID, ["description"]).description;
     }
     
+    function getEntityUserData() {
+        return Entities.getEntityProperties(_this.entityID, ["userData"]).userData;
+    }
+    
     function setDefaultUserData() {
         Entities.editEntity(_this.entityID, {
             userData: JSON.stringify(defaultUserData)
