@@ -63,12 +63,6 @@
         if (_this.entityID === pressedEntityID) {
             var userData = getAndParseUserData();
 
-            try {
-                userData = Object(JSON.parse(userData)); 
-            } catch (e) {
-                userData = defaultUserData; setDefaultUserData(); 
-            }
-
             if (userData.useConfirmDialog === true) {
                 if (Window.confirm("Are you sure you want to open this link?")) {
                     if (userData.openIn === "interface") {
