@@ -1,0 +1,41 @@
+{
+    "name": "Bathroom Vanity",
+    "version": "1.0.0",
+    "description": "A basic bathroom sink with a mirror.",
+    "homepage": "http://www.scopia.es",
+    "bugs": "",
+    "keywords": [
+        "Vanity",
+        "Bathroom",
+        "Sink",
+		"Cabinet"
+    ],
+    "icon": "img/icon.png",
+    "images": [
+        "img/bathroom_vanity.jpg"
+    ],
+    "author": {
+        "name": "Scopia Visual Interfaces Systems",
+        "email": "joe@whatever.com",
+        "url": "http://www.scopia.es"
+    },
+    "contributors": [
+        {
+            "name": "Haptic Monkey",
+            "url": "https://hapticmonkey.com"
+        }
+    ],
+    "license": "CC BY 3.0",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/whatever/testing.git"
+    },
+    "main": "fbx/bathroom_vanity.fbx",
+    "type": "model",
+    "meta": {
+    },
+    "dependencies": {       
+    },
+    "engines": {
+    }
+}
