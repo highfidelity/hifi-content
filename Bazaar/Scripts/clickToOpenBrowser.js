@@ -6,6 +6,8 @@
     
     Distributed under the Apache License, Version 2.0.
     See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+    
+    This script will import entities when the entity it is attached to is pressed.
 */
 
 (function () {
@@ -19,6 +21,7 @@
 
     var defaultUserData = {
         "useConfirmDialog": true,
+        "confirmDialogMessage": "Are you sure you want to open this link?",
         "url": "https://vircadia.com/",
         // options are "interface" and "browser"
         // "interface" opens an overlay, "browser" opens the OS' browser.
@@ -68,7 +71,7 @@
             var userData = getAndParseUserData();
 
             if (userData.useConfirmDialog === true) {
-                if (Window.confirm("Are you sure you want to open this link?")) {
+                if (Window.confirm(userData.confirmDialogMessage)) {
                     if (userData.openIn === "interface") {
                         createOverlayWebWindow(userData.url, userData.dimensions.height, userData.dimensions.width);
                     } else {

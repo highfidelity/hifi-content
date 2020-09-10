@@ -6,6 +6,8 @@
     
     Distributed under the Apache License, Version 2.0.
     See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+    
+    This script will import entities when the entity it is attached to is pressed.
 */
 
 (function () {
@@ -14,11 +16,12 @@
     var _this = this;
     
     var defaultUserData = {
-        "useConfirmDialog": false
-    }
-    
-    function getURLfromEntityDescription() {
-        return Entities.getEntityProperties(_this.entityID, ["description"]).description;
+        "useConfirmDialog": false,
+        "confirmDialogMessage": "Are you sure you want to open this link?",
+        "options": {
+            "url": null,
+            "entityHostType": "avatar"
+        }
     }
     
     function getEntityUserData() {
@@ -29,12 +32,6 @@
         Entities.editEntity(_this.entityID, {
             userData: JSON.stringify(defaultUserData)
         });
-    }
-    
-    function importAndPasteEntities() {
-        if (Clipboard.importEntities(getURLfromEntityDescription())) {
-            Clipboard.pasteEntities(MyAvatar.orientation, "avatar");
-        }
     }
     
     function getAndParseUserData() {
@@ -50,12 +47,20 @@
         return userData;
     }
     
+    function importAndPasteEntities() {
+        var userData = getAndParseUserData();
+    
+        if (Clipboard.importEntities(userData.options.url)) {
+            Clipboard.pasteEntities(MyAvatar.orientation, userData.options.entityHostType);
+        }
+    }
+    
     function onMousePressOnEntity(pressedEntityID, event) {
         if (_this.entityID === pressedEntityID) {
             var userData = getAndParseUserData();
 
             if (userData.useConfirmDialog === true) {
-                if (Window.confirm("Are you sure you want to import these entities?")) {
+                if (Window.confirm(userData.confirmDialogMessage)) {
                     importAndPasteEntities();
                 }
             } else {
