@@ -1,11 +1,14 @@
 /*
-    clickToOpenBrowser.js
+    scriptLoader.js
 
-    Created by Kalila L. on 3 Aug 2020
+    Created by Kalila L. on 10 Sep 2020
     Copyright 2020 Vircadia and contributors.
     
     Distributed under the Apache License, Version 2.0.
     See the accompanying file LICENSE or http://www.apache.org/licenses/LICENSE-2.0.html
+    
+    This script allows you to specify an array of scripts to load when a user joins the domain
+    or when the user clicks on the entity that this script is attached to.
 */
 
 (function () {
@@ -19,13 +22,13 @@
 
     var defaultUserData = {
         "useConfirmDialog": true,
-        "url": "https://vircadia.com/",
-        // options are "interface" and "browser"
-        // "interface" opens an overlay, "browser" opens the OS' browser.
-        "openIn": "interface",
-        "dimensions": {
-            "width": 800,
-            "height": 600
+        "confirmDialogMessage": "Would you like to load this domain's scripts?",
+        "requireClickOnEntity": true,
+        "scripts": [],
+        "options": {
+            "isUserLoaded": false,
+            "reload": false,
+            "quitWhenFinished": false
         }
     }
 
@@ -54,32 +57,31 @@
     
     // Main App Functionality
     
-    function createOverlayWebWindow(url, height, width) {
-        overlayWebWindow = new OverlayWebWindow({
-            title: "Vircadia Browser",
-            source: url,
-            width: width,
-            height: height
-        });
+    function loadScripts(userData) {
+        for (var i = 0; i < userData.scripts.length; i++) {
+            // https://apidocs.vircadia.dev/ScriptDiscoveryService.html#.loadScript
+            ScriptDiscoveryService.loadScript(
+                userData.scripts[i], 
+                userData.options.isUserLoaded, 
+                false, 
+                false,
+                userData.options.reload,
+                userData.options.quitWhenFinished
+            );
+        }
     }
 
     function onMousePressOnEntity(pressedEntityID, event) {
         if (_this.entityID === pressedEntityID) {
             var userData = getAndParseUserData();
 
-            if (userData.useConfirmDialog === true) {
-                if (Window.confirm("Are you sure you want to open this link?")) {
-                    if (userData.openIn === "interface") {
-                        createOverlayWebWindow(userData.url, userData.dimensions.height, userData.dimensions.width);
-                    } else {
-                        Window.openUrl(userData.url);
+            if (userData.requireClickOnEntity) {
+                if (userData.useConfirmDialog) {
+                    if (Window.confirm(userData.confirmDialogMessage)) {
+                        loadScripts(userData);
                     }
-                }
-            } else {
-                if (userData.openIn === "interface") {
-                    createOverlayWebWindow(userData.url, userData.dimensions.height, userData.dimensions.width);
                 } else {
-                    Window.openUrl(userData.url);
+                    loadScripts(userData);
                 }
             }
         }
@@ -90,7 +92,17 @@
 
     this.preload = function (ourID) {
         this.entityID = ourID;
-        getAndParseUserData();
+        var userData = getAndParseUserData();
+
+        if (!userData.requireClickOnEntity) {
+            if (userData.useConfirmDialog) {
+                if (Window.confirm(userData.confirmDialogMessage)) {
+                    loadScripts(userData);
+                }
+            } else {
+                loadScripts(userData);
+            }
+        }
         
         Entities.mousePressOnEntity.connect(onMousePressOnEntity);
     };
